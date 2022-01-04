@@ -1,4 +1,4 @@
-## 4criskaiReactMaterialGrid
+## 4criskaiReactMaterialGrid for Mendix
 Widget that can be used to get an entity data as grid view with many options from we can select from the widget tabs. The user can get the selected entity object value passed to the grid, global search, column search, columns visibility by Boolean and by condition, custom headers, params at columns, custom actions at row level and grid level.
 
 ## Features
