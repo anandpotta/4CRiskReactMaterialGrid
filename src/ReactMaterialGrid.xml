@@ -277,7 +277,7 @@
 
 
         </propertyGroup>
-        <!-- <propertyGroup caption="Action">
+        <propertyGroup caption="Action">
                 <property key="onRowClickAction" type="action" dataSource="datasource">
                     <caption>On row click</caption>
                     <description>Action to be performed when row is clicked</description>
@@ -302,7 +302,7 @@
                     <caption>Generate Obligation Action</caption>
                     <description>Action to trigger when Generate Obligation button clicked.</description>
                 </property>
-            </propertyGroup> -->
+            </propertyGroup> 
             <propertyGroup caption="Control">
                 <property key="Groupby_Tag" type="attribute" required="false">
                     <caption>Rule Tag</caption>
@@ -318,7 +318,7 @@
                         <attributeType name="String"/>
                     </attributeTypes>
                 </property>
-            </propertyGroup> 
+            </propertyGroup>
  
     </properties>
 </widget>
