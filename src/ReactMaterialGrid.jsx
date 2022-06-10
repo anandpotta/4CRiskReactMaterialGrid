@@ -5,22 +5,22 @@ import { Menu, MenuItem } from "@material-ui/core";
 
 import "./ui/ReactMaterialGrid.css";
 
-// import { AutocompleteUI } from './components/ReactMaterialGridComponent';
 import ReactMaterialGridComponent from './components/ReactMaterialGridComponent';
+import CircularProgress from "@material-ui/core/CircularProgress";
+import ReactReadMoreReadLess from "react-read-more-read-less";
+import reactElementToJSXString from 'react-element-to-jsx-string';
 
 export default class ReactMaterialGrid extends Component {
     constructor(props) {
         super(props);
+
         this.getHeaderJSONVal = this.getHeaderJSONVal.bind(this);
         this.getJSONVal = this.getJSONVal.bind(this);
-        this.onClickShare = this.onClickShare.bind(this);
-        this.onClickComment = this.onClickComment.bind(this);
-        this.onRowClick = this.onRowClick.bind(this);
-        this.onClickGenerateObligation = this.onClickGenerateObligation.bind(this);
-        this.onClickSave = this.onClickSave.bind(this);
         this.getTableTitle = this.getTableTitle.bind(this);
-        this.onRowDataUpdate = this.onRowDataUpdate.bind(this);
+
+        this.onClickGenerateObligation = this.onClickGenerateObligation.bind(this);
     }
+
 
     shouldComponentUpdate(nextProps) {
         return nextProps.datasource !== this.props.datasource;
@@ -32,16 +32,28 @@ export default class ReactMaterialGrid extends Component {
         if (datasource.status === "available" && datasource.items) {
             if (this.props.columns) {
                 let i = 0;
+                var groupByArr = this.props.Groupby_Tag.displayValue.replace(/[|]/g, ',').split(',');
                 for (i = 0; i < this.props.columns.length; i++) {
-                    // console.log(this.props.columns[i].header && this.props.columns[i].header.get(this.props.datasource.items[0]).status === "available");
-                    // if (this.props.columns[i].header && this.props.columns[i].header.get(this.props.datasource.items[0]).status === "available") {
+                        // debugger;
                         if (this.props.columns[i].header && this.props.columns[i].header.status === "available" && this.props.columns[i].header.value !== "") {
                             tableHeaderData.push(
                                 {
                                     title: this.props.columns[i].header.value,
                                     field: this.props.columns[i].columnHeader.replace(/ /g, ""),
                                     hidden: this.props.columns[i].canHide.value,
-                                    customHeader: true
+                                    hiddenByColumnsButton: false,
+                                    export: !this.props.columns[i].canHide.value && this.props.columns[i].canExport.value,
+                                    filtering: (this.props.columns[i].header.value !== "Actions"),
+                                    customHeader: true,
+                                    defaultGroupOrder: (groupByArr[0] !== '' && groupByArr[0] === 'Default') ? this.props.columns[i].groupOrder : groupByArr.indexOf(this.props.columns[i].columnHeader.replace(/ /g, "")),
+                                    cellStyle: {
+                                        minWidth: this.props.columns[i].columnMinWidth,
+                                        maxWidth: this.props.columns[i].columnMaxWidth
+                                    },
+                                    headerStyle: {
+                                        minWidth: this.props.columns[i].columnMinWidth,
+                                        maxWidth: this.props.columns[i].columnMaxWidth
+                                    }
                                 }
                             )
                         } else {
@@ -50,11 +62,22 @@ export default class ReactMaterialGrid extends Component {
                                     title: this.props.columns[i].columnHeader,
                                     field: this.props.columns[i].columnHeader.replace(/ /g, ""),
                                     hidden: this.props.columns[i].canHide.value,
-                                    customHeader: false
+                                    export: !this.props.columns[i].canHide.value && this.props.columns[i].canExport.value,
+                                    filtering: (this.props.columns[i].columnHeader !== "Actions"),
+                                    customHeader: false,
+                                    hiddenByColumnsButton: false,
+                                    defaultGroupOrder: (groupByArr[0] !== '' && groupByArr[0] === 'Default') ? this.props.columns[i].groupOrder : groupByArr.indexOf(this.props.columns[i].columnHeader.replace(/ /g, "")),
+                                    cellStyle: {
+                                        minWidth: this.props.columns[i].columnMinWidth,
+                                        maxWidth: this.props.columns[i].columnMaxWidth.value
+                                    },
+                                    headerStyle: {
+                                        minWidth: this.props.columns[i].columnMinWidth,
+                                        maxWidth: this.props.columns[i].columnMaxWidth.value
+                                    }
                                 }
                             )
                         }
-                    // }
                 }
             }
         }
@@ -64,15 +87,28 @@ export default class ReactMaterialGrid extends Component {
 
     getJSONVal() {
         debugger;
+
         var tableData = [];
         const datasource = this.props.datasource;
             if (datasource.status === "available" && datasource.items) {
+
                 const NUM_COLUMNS = this.props.columns.length;
                 var columnData = {};
                 for (var i = 0; i < this.props.datasource.items.length; i++) {
                     for (var j = 0; j < NUM_COLUMNS; j++) {
                         if (this.props.columns[j].showContentAs === "attribute") {
-                            columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] = this.props.columns[j].attribute ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
+                            columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] =
+                            this.props.columns[j].attribute && (this.props.columns[j].attribute.get(this.props.datasource.items[i]).value.length >= 400)
+                            ? <ReactReadMoreReadLess
+                                charLimit={400}
+                                readMoreText={"see more..."}
+                                readLessText={"see less."}
+                                // readMoreText={"Read more ▼"}
+                                // readLessText={"Read less ▲"}
+                                readMoreClassName="read-more-less--more"
+                                readLessClassName="read-more-less--less"
+                            >{this.props.columns[j].attribute.get(this.props.datasource.items[i]).value}</ReactReadMoreReadLess>
+                            : this.props.columns[j].attribute && (this.props.columns[j].attribute.get(this.props.datasource.items[i]).value.length < 400) ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
                         } else if (this.props.columns[j].showContentAs === "customContent") {
                             columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] = this.props.columns[j].content ? this.props.columns[j].content.get(this.props.datasource.items[i]) : ""
                         }
@@ -94,51 +130,17 @@ export default class ReactMaterialGrid extends Component {
         return title;
     }
 
-    onClickShare() {
-        if (this.props.onClickShareAction) {
-        this.props.onClickShareAction.execute();
-        }
-    }
-
-    onClickComment(event, rowData) {
-        mx.data.create({
-            entity: "RuleBook.Rules",
-            // mxobj : newData,
-            callback: function(obj) {
-
-                obj.set("UniqueValue", rowData.UniqueValue);
-                mx.data.action({
-                    params: {
-                        applyto: "selection",
-                        actionname: "RuleBook.ACT_CommentRules",
-                        guids: [obj.getGuid()]
-                    }
-                });
-                console.log("comment updated on server");
-            },
-            error: function(e) {
-              console.log("Could not comment on object:", e);
-            }
-          });
-    }
-
-    onRowDataUpdate(newData, oldData, [...data]) {
-        if (this.props.onRowUpdateAction && this.props.onRowUpdateAction.canExecute && !this.props.onRowUpdateAction.isExecuting) {
-            const obj = newData;
-            this.props.onRowUpdateAction.execute();
-            return obj;
-        }
-    }
-
     onClickGenerateObligation(tableRef) {
+
         if (this.props.onClickGenerateObligationAction) {
             debugger;
+
             if (tableRef.dataManager.grouped == true) {
 
                 let groupCount = 0;
                 const groupedItems = [];
                 for (let i = 0; i < tableRef.dataManager.columns.length; i++) {
-                    if (tableRef.dataManager.columns[i].tableData.groupOrder != undefined) {
+                    if (tableRef.dataManager.columns[i].tableData.groupOrder !== undefined && tableRef.dataManager.columns[i].tableData.groupOrder !== -1) {
                         groupCount++
                         groupedItems.push(tableRef.dataManager.columns[i].field);
                         // groupedItems.push(tableRef.dataManager.columns[i].title.replace(/ /g, ""));
@@ -174,62 +176,42 @@ export default class ReactMaterialGrid extends Component {
             this.props.onClickGenerateObligationAction.execute();
             return arr;
         }
-    }
-
-    onClickSave = tableRef => {
-        const rowData = tableRef.props.data;
-        if (this.props.onClickSaveAction) {
-            mx.data.commit({
-                mxobjs: rowData,
-                callback: function() { console.log("Object committed"); },
-                error: function() { console.error("Could not commit object:"); }
-            });
-            this.props.onClickSaveAction.execute();
-        }
-    }
 
 
-    onRowClick = (event, rowData) => {
-              mx.data.create({
-                  entity: "RuleBook.Rules",
-                  // mxobj : newData,
-                  callback: function(obj) {
-
-                      obj.set("UniqueValue", rowData.UniqueValue);
-                      mx.data.action({
-                          params: {
-                              applyto: "selection",
-                              actionname: "RuleBook.ACT_EditRules",
-                              guids: [obj.getGuid()]
-                          }
-                      });
-                      console.log("Object created on server");
-                  },
-                  error: function(e) {
-                    console.log("Could not commit object:", e);
-                  }
-                });
     }
 
     render() {
         const inputHeaderDataToRender = this.getHeaderJSONVal();
         const inputDataToRender = this.getJSONVal();
         const tableTitle = this.getTableTitle();
+        const actionProps = this.props.actions && this.props.actions.map(item => item.actionName);
         return (
             <div>
+                {/* { this.loading ?? <CircularProgress />} */}
                 <ReactMaterialGridComponent
+                    onClickGenerateObligation={this.onClickGenerateObligation}
+
                     columnData={inputHeaderDataToRender}
                     rowData={inputDataToRender}
-                    onClickShare={this.onClickShare}
-                    onClickComment={this.onClickComment}
-                    onRowClick={this.onRowClick}
-                    onClickGenerateObligation={this.onClickGenerateObligation}
-                    onClickSave={this.onClickSave}
                     tableTitle={tableTitle}
-                    onRowDataUpdate={this.onRowDataUpdate}
                     canFilter={this.props.canFilter}
                     canSearch={this.props.canSearch}
+                    canDraggable={this.props.canDraggable}
+                    canSortable={this.props.canSortable}
+                    canGroupable={this.props.canGroupable}
+                    isPaging={this.props.isPaging}
+                    isSelectAllCheckbox={this.props.isSelectAllCheckbox}
+                    isSelection={this.props.isSelection}
+                    isPageSize={this.props.isPageSize}
+                    paginationPosition={this.props.paginationPosition}
+                    topbarColumnsButton={this.props.topbarColumnsButton}
+                    topbarExportActions={this.props.topbarExportActions}
+                    topbarObligationAction={this.props.topbarObligationAction}
                     actions={this.props.actions}
+                    Groupby_Tag={this.props.Groupby_Tag}
+                    TagLevel={this.props.TagLevel}
+                    Table_Ref={this.props.Table_Ref}
+                    actionProps={actionProps}
                 />
             </div>
         )
