@@ -14,3 +14,29 @@
 .MuiChip-root .MuiChip-label {
     font-size: 12px;
 }
+
+.count{
+    position:fixed;
+}
+
+.read-more-less--more,
+.read-more-less--less {
+    color: #0d5b9f;
+    display: block;
+}
+
+.groupHeader{
+    width: 100%;
+    display: contents;
+}
+
+.groupHeader > input{
+    float: left;
+    position: relative !important;
+    margin: 10px 0px -20px 0px !important;
+    left: 25px;
+}
+
+.groupHeader > tr > td > button, .groupHeader > tr > td > button:hover, .groupHeader > tr > td > button:focus{
+    margin-left: 43px;
+}
