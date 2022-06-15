@@ -72,9 +72,9 @@ function ReactMaterialGridComponent(props) {
 
     // const [checked, setChecked] = React.useState(false);
 
-    const handleDeleteRows = (event, rowData) => {
-        debugger;
-    };
+    // const handleDeleteRows = (event, rowData) => {
+    //     debugger;
+    // };
 
     useEffect(() => {
         debugger;
@@ -94,13 +94,13 @@ function ReactMaterialGridComponent(props) {
             delete item.Actions && delete item.tableData;
         });
 
-        data.map(obj =>
-            Object.keys(obj).map(
-                item =>
-                    (obj[item] =
-                        typeof obj[item] === "object" ? obj[item].props && obj[item].props.children : obj[item])
-            )
-        );
+        // data.map(obj =>
+        //     Object.keys(obj).map(
+        //         item =>
+        //             (obj[item] =
+        //                 typeof obj[item] === "object" ? obj[item].props && obj[item].props.children : obj[item])
+        //     )
+        // );
 
         columns = columns.filter(column => column.export === true && column.hidden !== true);
         let rowNewData;
@@ -124,13 +124,13 @@ function ReactMaterialGridComponent(props) {
         data.forEach(item => {
             delete item.Actions && delete item.tableData;
         });
-        data.map(obj =>
-            Object.keys(obj).map(
-                item =>
-                    (obj[item] =
-                        typeof obj[item] === "object" ? obj[item].props && obj[item].props.children : obj[item])
-            )
-        );
+        // data.map(obj =>
+        //     Object.keys(obj).map(
+        //         item =>
+        //             (obj[item] =
+        //                 typeof obj[item] === "object" ? obj[item].props && obj[item].props.children : obj[item])
+        //     )
+        // );
         const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
         let rowNewData;
         columnNewData.forEach(column => {
@@ -198,26 +198,25 @@ function ReactMaterialGridComponent(props) {
 
                 const tableRefArr = [];
 
-                if(data.length != undefined){
+                if (data.length !== undefined) {
                     data.forEach((obj, idx) => {
                         tableRefArr.push(obj.RuleAutoID);
                     });
 
-                    if (props.Table_Ref.status === "available" && data.length != undefined) {
-                        if (tableRefArr.length == 1) {
+                    if (props.Table_Ref.status === "available" && data.length !== undefined) {
+                        if (tableRefArr.length === 1) {
                             props.Table_Ref.setValue(JSON.stringify(JSON.parse(tableRefArr)));
                         } else {
                             props.Table_Ref.setValue(tableRefArr.join(","));
                         }
                     }
                 } else if ($(".groupCheck").is(":checked")) {
-                    tableRef.current.dataManager.groupedData &&
-                        tableRef.current.dataManager.groupedData.forEach((obj, idx) => {
-                            obj.data.map(tdata => {
+                    const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.checked === true);
+                    deleteSet &&
+                        deleteSet.map(tdata => {
                                 if (tdata.tableData.checked == true && tdata.checked == true) {
                                     tableRefArr.push(tdata.RuleAutoID);
                                 }
-                            });
                         });
 
                     if (props.Table_Ref.status === "available" && tableRefArr.length != undefined) {
@@ -273,22 +272,75 @@ function ReactMaterialGridComponent(props) {
             .split(":", 2)
             .pop()
             .trim();
-        // $(event.target).next('tr').text().split(":").pop().trim()
-        // tableRef.current.dataManager.groupedData[1].value.trim()?\
+
+        const groupedItems = [];
+        for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {
+            if (
+                tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&
+                tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1
+            ) {
+                groupedItems.push(tableRef.current.dataManager.columns[i].field);
+            }
+        }
+        console.log(groupedItems);
 
         const tableRefArr = [];
 
-        tableRef.current.dataManager.groupedData &&
-            tableRef.current.dataManager.groupedData.forEach(item => {
-                var itemSelected = item.value.split(":").slice('0', '1').toString().trim();
-                if (itemSelected == selectedSection) {
-                    item.data.map(tdata => {
-                        tdata.checked = true;
-                        tdata.tableData.checked = true;
-                        tableRefArr.push(tdata.RuleAutoID);
-                    });
-                }
-            });
+        tableRef.current.dataManager.data.filter(item => {
+            if (item[groupedItems[0]] === selectedSection) {
+                item.checked = true;
+                item.tableData.checked = true;
+                tableRefArr.push(item.RuleAutoID);
+            }
+        });
+
+        // const dataSetSelected = dataSet.filter(
+        //     item => item[Object.keys(dataSet[0]).find(key => dataSet[0][key] == selectedSection)] === selectedSection
+        // );
+
+        // const tableRefArr = [];
+        // dataSetSelected.map(tdata => {
+        //     tdata.checked = true;
+        //     tdata.tableData.checked = true;
+        //     tableRefArr.push(tdata.RuleAutoID);
+        // });
+
+        // let groupCount = 0;
+        // const groupedItems = [];
+        // const groupedResults = [];
+        // for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {
+        //     if (
+        //         tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&
+        //         tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1
+        //     ) {
+        //         groupCount++;
+        //         groupedItems.push(tableRef.current.dataManager.columns[i].field);
+        //         groupedResults.push(
+        //             tableRef.current.dataManager.groupedData[
+        //                 tableRef.current.dataManager.columns[i].tableData.groupOrder
+        //             ].value
+        //         );
+        //     }
+        // }
+        // console.log(groupCount, groupedItems);
+
+        // const tableRefArr = [];
+
+        // tableRef.current.dataManager.groupedData &&
+        //     tableRef.current.dataManager.groupedData.forEach(item => {
+        //         var itemSelected = item.value
+        //             .split(":")
+        //             .slice("0", "1")
+        //             .toString()
+        //             .trim();
+        //         if (itemSelected == selectedSection) {
+        //             item.data.map(tdata => {
+        //                 tdata.checked = true;
+        //                 tdata.tableData.checked = true;
+        //                 tableRefArr.push(tdata.RuleAutoID);
+        //             });
+        //         }
+        //     });
 
         // if (props.Table_Ref.status === "available" && data.length != undefined) {
         //     props.Table_Ref.setValue(
@@ -349,8 +401,8 @@ function ReactMaterialGridComponent(props) {
                     paginationPosition: props.paginationPosition,
                     pageSizeOptions: [5, 10, 20, 25, 50, 100],
                     pageSize: props.isPageSize,
-                    showSelectAllCheckbox: props.isSelectAllCheckbox,
-                    selection: props.isSelection,
+                    showSelectAllCheckbox: props.isSelectAllCheckbox.value,
+                    selection: props.isSelection.value,
                     paginationType: "stepped",
                     showFirstLastPageButtons: true,
 
