@@ -7,7 +7,7 @@ import "./ui/ReactMaterialGrid.css";
 
 import ReactMaterialGridComponent from './components/ReactMaterialGridComponent';
 import CircularProgress from "@material-ui/core/CircularProgress";
-import ReactReadMoreReadLess from "react-read-more-read-less";
+// import ReactReadMoreReadLess from "react-read-more-read-less";
 import reactElementToJSXString from 'react-element-to-jsx-string';
 
 export default class ReactMaterialGrid extends Component {
@@ -75,6 +75,29 @@ export default class ReactMaterialGrid extends Component {
                                         minWidth: this.props.columns[i].columnMinWidth,
                                         maxWidth: this.props.columns[i].columnMaxWidth.value
                                     }
+                                    // render: rowData => {
+                                    //     debugger;
+                                    //     console.log('rowData----', rowData);  
+                                    // },
+                                    // customFilterAndSearch: (filterValue, row, columnDef) => {
+                                    //     debugger;
+                                    //     console.log(filterValue, row, columnDef, '-------------termRowData')
+                                    //     Object.keys(row).map(
+                                    //         item =>
+                                    //             (row[item] =
+                                    //                 typeof row[item] === "object" ? row[item].props && row[item].props.children : row[item])
+                                    //     );
+                                    //     delete row.Actions && delete row.tableData;
+                                    //     return row[columnDef.field].indexOf(filterValue) == -1;
+
+                                        // if(typeof(row[columnDef.field]) == 'object'){
+                                        //     return row[columnDef.field].props.children.indexOf(filterValue) != -1;
+                                        // }else{
+                                        //     return row[columnDef.field].indexOf(filterValue) != -1;
+                                        // }
+                                        // return row.findIndex(item => item.name.includes(term)) != -1;
+                                        // (rowData.name + ' ' + rowData.surname).indexOf(term) != -1
+                                    // }
                                 }
                             )
                         }
@@ -98,17 +121,19 @@ export default class ReactMaterialGrid extends Component {
                     for (var j = 0; j < NUM_COLUMNS; j++) {
                         if (this.props.columns[j].showContentAs === "attribute") {
                             columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] =
-                            this.props.columns[j].attribute && (this.props.columns[j].attribute.get(this.props.datasource.items[i]).value.length >= 400)
-                            ? <ReactReadMoreReadLess
-                                charLimit={400}
-                                readMoreText={"see more..."}
-                                readLessText={"see less."}
-                                // readMoreText={"Read more ▼"}
-                                // readLessText={"Read less ▲"}
-                                readMoreClassName="read-more-less--more"
-                                readLessClassName="read-more-less--less"
-                            >{this.props.columns[j].attribute.get(this.props.datasource.items[i]).value}</ReactReadMoreReadLess>
-                            : this.props.columns[j].attribute && (this.props.columns[j].attribute.get(this.props.datasource.items[i]).value.length < 400) ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
+                            this.props.columns[j].attribute && this.props.columns[j].attribute.get(this.props.datasource.items[i]).value 
+                            ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
+                            // this.props.columns[j].attribute && (this.props.columns[j].attribute.get(this.props.datasource.items[i]).value.length >= 400)
+                            // ? <ReactReadMoreReadLess
+                            //     charLimit={400}
+                            //     readMoreText={"see more..."}
+                            //     readLessText={"see less."}
+                            //     // readMoreText={"Read more ▼"}
+                            //     // readLessText={"Read less ▲"}
+                            //     readMoreClassName="read-more-less--more"
+                            //     readLessClassName="read-more-less--less"
+                            // >{this.props.columns[j].attribute.get(this.props.datasource.items[i]).value}</ReactReadMoreReadLess>
+                            // : this.props.columns[j].attribute && (this.props.columns[j].attribute.get(this.props.datasource.items[i]).value.length < 400) ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
                         } else if (this.props.columns[j].showContentAs === "customContent") {
                             columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] = this.props.columns[j].content ? this.props.columns[j].content.get(this.props.datasource.items[i]) : ""
                         }
