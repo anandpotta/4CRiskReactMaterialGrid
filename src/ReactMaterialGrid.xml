@@ -231,13 +231,15 @@
                   <enumerationValue key="bottom">Bottom</enumerationValue>
                </enumerationValues>
             </property>
-            <property key="isSelectAllCheckbox" type="boolean" required="true" defaultValue="true">
+            <property key="isSelectAllCheckbox" type="expression" required="true" defaultValue="true">
                <caption>Show SelectAll Checkbox</caption>
                <description />
+               <returnType type="Boolean"/>
             </property>
-            <property key="isSelection" type="boolean" required="true" defaultValue="true">
+            <property key="isSelection" type="expression" required="true" defaultValue="true">
                <caption>Show Selection</caption>
                <description />
+               <returnType type="Boolean"/>
             </property>
          </propertyGroup>
       </propertyGroup>
