@@ -1,7 +1,6 @@
 import { createElement } from "react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MaterialTable, { MTableAction, MTableBody, MTableGroupRow, MTableGroupbar } from "material-table";
-import CustomGroupRow from "./CustomComponent";
 import { TableCell, TableFooter, TableRow } from "@material-ui/core";
 import { Button } from "react-bootstrap";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -11,6 +10,7 @@ import { forwardRef } from "react";
 import { Menu, MenuItem } from "@material-ui/core";
 
 import * as XLSX from "xlsx/xlsx.mjs";
+
 
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -87,36 +87,53 @@ function ReactMaterialGridComponent(props) {
         setLoadingOne(loadingOne);
     }, [props.rowData]);
 
+    let csvData = [];
+    let dataSet = [];
+    let groupedData;
     const exportCsv = (columns, data) => {
         debugger;
+        
+        data.forEach((item) => {
+            delete item.Actions && delete item.RuleAutoID && delete item.tableData;
+          });
 
-        data.forEach(item => {
-            delete item.Actions && delete item.tableData;
-        });
+        if(tableRef.current.dataManager.grouped != true)    {
+            const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
+             columnNewData.forEach(column => {
+                dataSet = data.filter(row => delete !row[column.field]);
+            });
+        } else {
+            let groupedData = tableRef.current.dataManager.groupedData;
+            function csvData(obj) {
+                if (obj.data.length > 0) {
+                    obj.data.forEach(item => {
+                        delete item.Actions && delete item.RuleAutoID && delete item.tableData;
+                    });
+                const groups = obj.path.map((e, idx) => {
+                    return { [`Group-${idx}`]: e };
+                });
+                    dataSet = [...dataSet, ...groups, ...obj.data];
+                }
+                
+                if (obj.groups.length > 0) {
+                    obj.groups.forEach(csvData);
+                }
+            }
+            groupedData.forEach(csvData);
+            console.log(dataSet);
+        }
 
-        // data.map(obj =>
-        //     Object.keys(obj).map(
-        //         item =>
-        //             (obj[item] =
-        //                 typeof obj[item] === "object" ? obj[item].props && obj[item].props.children : obj[item])
-        //     )
-        // );
-
-        columns = columns.filter(column => column.export === true && column.hidden !== true);
-        let rowNewData;
-        columns.forEach(column => {
-            rowNewData = data.filter(row => delete !row[column.field]);
-        });
-
-        const workSheet = XLSX.utils.json_to_sheet(rowNewData);
+        const workSheet = XLSX.utils.json_to_sheet(dataSet);
         const workBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
+        //XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
+        XLSX.utils.book_append_sheet(workBook, workSheet, "xlxsdownload");
         //Buffer
         XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
         //Binary string
         XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
         //Download
         XLSX.writeFile(workBook, tableTitle + ".xlsx");
+       //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
     };
 
     const exportPdf = (columns, data) => {
@@ -124,18 +141,40 @@ function ReactMaterialGridComponent(props) {
         data.forEach(item => {
             delete item.Actions && delete item.tableData;
         });
-        // data.map(obj =>
-        //     Object.keys(obj).map(
-        //         item =>
-        //             (obj[item] =
-        //                 typeof obj[item] === "object" ? obj[item].props && obj[item].props.children : obj[item])
-        //     )
-        // );
+
         const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
         let rowNewData;
         columnNewData.forEach(column => {
             rowNewData = data.filter(row => delete !row[column.field]);
         });
+        const columnTitles = columns
+            .map(columnDef => columnDef.title).filter(function( element ) {
+        return element !== undefined;
+        });
+        if(tableRef.current.dataManager.grouped != true)    {
+            dataSet = data.map(rowData =>
+                columns.map(columnDef => rowData[columnDef.field]),
+            );
+        } else {
+            let groupedData = tableRef.current.dataManager.groupedData;
+            function csvData(obj) {
+                if (obj.data.length > 0) {
+                    obj.data.forEach(item => {
+                        delete item.Actions && delete item.RuleAutoID && delete item.tableData;
+                    });
+                const groups = obj.path.map((e, idx) => {
+                    return { [`Group-${idx}`]: e };
+                });
+                    dataSet = [...dataSet, ...groups, ...obj.data];
+                }
+                
+                if (obj.groups.length > 0) {
+                    obj.groups.forEach(csvData);
+                }
+            }
+            groupedData.forEach(csvData);
+            console.log(dataSet);
+        }
         // rows = rows.map(rowData => rowData.includes('Rule') && typeof(rowData) ? rowData.props.children)
         const doc = new jsPDF("landscape");
 
@@ -147,7 +186,7 @@ function ReactMaterialGridComponent(props) {
         doc.autoTable({
             theme: "striped",
             columns: columnNewData.map(col => ({ ...col, dataKey: col.field })),
-            body: rowNewData,
+            body: dataSet,
             startY: 30,
             // showHead: "firstPage",
             headStyles: {
@@ -198,7 +237,7 @@ function ReactMaterialGridComponent(props) {
 
                 const tableRefArr = [];
 
-                if (data.length !== undefined) {
+                if(data.length !== undefined){
                     data.forEach((obj, idx) => {
                         tableRefArr.push(obj.RuleAutoID);
                     });
@@ -212,12 +251,11 @@ function ReactMaterialGridComponent(props) {
                     }
                 } else if ($(".groupCheck").is(":checked")) {
                     const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.checked === true);
-                    deleteSet &&
-                        deleteSet.map(tdata => {
+                    deleteSet && deleteSet.map(tdata => {
                                 if (tdata.tableData.checked == true && tdata.checked == true) {
                                     tableRefArr.push(tdata.RuleAutoID);
                                 }
-                        });
+                            });
 
                     if (props.Table_Ref.status === "available" && tableRefArr.length != undefined) {
                         if (tableRefArr.length == 1) {
@@ -263,7 +301,7 @@ function ReactMaterialGridComponent(props) {
         });
     });
 
-    const handleCheckboxClick = event => {
+    const handleCheckboxClick = (event) => {
         debugger;
 
         const selectedSection = $(event.target)
@@ -272,76 +310,61 @@ function ReactMaterialGridComponent(props) {
             .split(":", 2)
             .pop()
             .trim();
-
-        const groupedItems = [];
-        for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {
-            if (
-                tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&
-                tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1
-            ) {
-                groupedItems.push(tableRef.current.dataManager.columns[i].field);
-            }
-        }
+        // $(event.target).next('tr').text().split(":").pop().trim()
+        // tableRef.current.dataManager.groupedData[1].value.trim()?\
+       
+        const groupedItems = [];	
+        for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {	
+            if (	
+                tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&	
+                tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1	
+            ) {	
+                groupedItems.push(tableRef.current.dataManager.columns[i].field);	
+            }	
+        }	
         console.log(groupedItems);
 
         const tableRefArr = [];
 
-        tableRef.current.dataManager.data.filter(item => {
-            if (item[groupedItems[0]] === selectedSection) {
-                item.checked = true;
-                item.tableData.checked = true;
-                tableRefArr.push(item.RuleAutoID);
+        $('input[type=checkbox]').change(function(){
+            // if is checked
+            if(this.checked){
+                // check all children
+                var lenchk = $(this).closest('input').find(':checkbox');
+                var lenchkChecked = $(this).closest('input').find(':checkbox:checked');
+        
+                //if all siblings are checked, check its parent checkbox
+                if (lenchk.length == lenchkChecked.length) {
+                    tableRef.current.dataManager.data.filter(item => {	
+                        if (item[groupedItems[0]] === selectedSection) {	
+                            item.checked = true;	
+                            item.tableData.checked = true;	
+                            tableRefArr.push(item.RuleAutoID);	
+                        }	
+                    });
+                    $(this).closest('input').siblings().find(':checkbox').prop('checked', true);
+                    $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').addClass('PrivateSwitchBase-checked-19 Mui-checked');
+                    $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z");
+                }else{
+                    $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', true);
+                }
+            } else {
+                // uncheck all children
+                tableRef.current.dataManager.data.filter(item => {	
+                    if (item[groupedItems[0]] === selectedSection) {	
+                        item.checked = false;	
+                        item.tableData.checked = false;	
+                    }
+                });
+                $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', false);
+                $(this).closest('input').siblings().find(':checkbox').prop('checked', false);
+                $(this).parent('.groupHeader').children().find('.groupCheck').prop('checked', false);
+                $(this).parents('.groupHeader').find('.groupCheck').prop('checked', false);
+                $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').removeClass('PrivateSwitchBase-checked-19 Mui-checked')
+                $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z");
             }
         });
-
-        // const dataSetSelected = dataSet.filter(
-        //     item => item[Object.keys(dataSet[0]).find(key => dataSet[0][key] == selectedSection)] === selectedSection
-        // );
-
-        // const tableRefArr = [];
-        // dataSetSelected.map(tdata => {
-        //     tdata.checked = true;
-        //     tdata.tableData.checked = true;
-        //     tableRefArr.push(tdata.RuleAutoID);
-        // });
-
-        // let groupCount = 0;
-        // const groupedItems = [];
-        // const groupedResults = [];
-        // for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {
-        //     if (
-        //         tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&
-        //         tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1
-        //     ) {
-        //         groupCount++;
-        //         groupedItems.push(tableRef.current.dataManager.columns[i].field);
-        //         groupedResults.push(
-        //             tableRef.current.dataManager.groupedData[
-        //                 tableRef.current.dataManager.columns[i].tableData.groupOrder
-        //             ].value
-        //         );
-        //     }
-        // }
-        // console.log(groupCount, groupedItems);
-
-        // const tableRefArr = [];
-
-        // tableRef.current.dataManager.groupedData &&
-        //     tableRef.current.dataManager.groupedData.forEach(item => {
-        //         var itemSelected = item.value
-        //             .split(":")
-        //             .slice("0", "1")
-        //             .toString()
-        //             .trim();
-        //         if (itemSelected == selectedSection) {
-        //             item.data.map(tdata => {
-        //                 tdata.checked = true;
-        //                 tdata.tableData.checked = true;
-        //                 tableRefArr.push(tdata.RuleAutoID);
-        //             });
-        //         }
-        //     });
-
+       
         // if (props.Table_Ref.status === "available" && data.length != undefined) {
         //     props.Table_Ref.setValue(
         //         tableRef.current.dataManager.groupedData.map(obj => JSON.parse(obj.RuleAutoID)).join(",")
@@ -401,16 +424,22 @@ function ReactMaterialGridComponent(props) {
                     paginationPosition: props.paginationPosition,
                     pageSizeOptions: [5, 10, 20, 25, 50, 100],
                     pageSize: props.isPageSize,
-                    showSelectAllCheckbox: props.isSelectAllCheckbox.value,
+                    showSelectAllCheckbox: props.isSelectAllCheckbox.value,	
                     selection: props.isSelection.value,
                     paginationType: "stepped",
                     showFirstLastPageButtons: true,
 
-                    exportButton: props.topbarExportActions,
+                    //exportButton: props.topbarExportActions,
                     exportAllData: true,
                     exportFileName: tableTitle,
-                    exportCsv: (tableColumns, tableData) => exportCsv(tableColumns, tableData),
-                    exportPdf: (tableColumns, tableData) => exportPdf(tableColumns, tableData),
+                    exportButton: {
+                        csv: true,
+                        pdf: true,
+                     },
+                     exportCsv: (data, columns) =>  exportCsv(data, columns),
+                     exportPdf: (data, columns) =>  exportPdf(data, columns),
+                    // exportCsv: (tableColumns, tableData) => exportCsv(tableColumns, tableData),
+                    // exportPdf: (tableColumns, tableData) => exportPdf(tableColumns, tableData),
 
                     searchFieldAlignment: "left",
                     searchAutoFocus: true,
