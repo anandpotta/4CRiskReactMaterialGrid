@@ -147,7 +147,7 @@ function ReactMaterialGridComponent(props) {
         });
         const columnTitles = columns
             .map(columnDef => columnDef.title)
-            .filter(function(element) {
+            .filter(function (element) {
                 return element !== undefined;
             });
         if (tableRef.current.dataManager.grouped != true) {
@@ -173,7 +173,7 @@ function ReactMaterialGridComponent(props) {
         // rows = rows.map(rowData => rowData.includes('Rule') && typeof(rowData) ? rowData.props.children)
         const doc = new jsPDF("landscape");
 
-        const header = function(data) {
+        const header = function (data) {
             doc.setFontSize(16);
             doc.setTextColor(40);
             doc.text(tableTitle, data.settings.margin.left, 22);
@@ -208,7 +208,7 @@ function ReactMaterialGridComponent(props) {
             },
             pageBreak: "auto",
             didDrawPage: header,
-            drawHeaderRow: function(row, data) {
+            drawHeaderRow: function (row, data) {
                 if (data.pageCount > 1) {
                     return false;
                 }
@@ -323,101 +323,158 @@ function ReactMaterialGridComponent(props) {
         console.log(groupedItems);
 
         const tableRefArr = [];
-
-        $("input[type=checkbox]").on("change", function(e) {
-            // var selectedVal = $(this).parent('.groupHeader').children().find('tr').text().split(":", 2).pop().trim();
+        if($('.PrivateSwitchBase-input-22').parent('span').parent('span').hasClass('Mui-checked')) {
+            $('.PrivateSwitchBase-input-22').closest('.groupHeader').find('.groupCheck').prop('checked', true)
+        }
+        $("input[type=checkbox]").on("change", function() {
             var selectedVal = this.nextElementSibling.textContent
                 .split(":", 2)
                 .pop()
                 .trim();
 
             // if is checked
+           
             if (this.checked) {
-                // check all children
-                var lenchk = $(this)
-                    .closest("input")
-                    .find(":checkbox");
-                var lenchkChecked = $(this)
-                    .closest("input")
-                    .find(":checkbox:checked");
-                //if all siblings are checked, check its parent checkbox
-                if (lenchk.length == lenchkChecked.length) {
-                    tableRef.current.dataManager.data.filter(item => {
-                        if (item[groupedItems[0]] === selectedVal) {
+                $(this).closest("input").siblings().find(":checkbox").prop("checked", true);
+                $(this).parent(".groupHeader").children().find("span.MuiCheckbox-root").addClass("PrivateSwitchBase-checked-19 Mui-checked");
+                $(this).parent(".groupHeader").children().find("span.MuiCheckbox-root svg path").attr("d", "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z");
+                tableRef.current.dataManager.data.map(item => {
+                    for (var j = 0; j < groupedItems.length; j++) {
+                        if (item[groupedItems[j]] === selectedVal) {
                             item.checked = true;
                             item.tableData.checked = true;
                             tableRefArr.push(item.RuleAutoID);
                         }
-                    });
-                    $(this)
-                        .closest("input")
-                        .siblings()
-                        .find(":checkbox")
-                        .prop("checked", true);
-                    $(this)
-                        .parent(".groupHeader")
-                        .children()
-                        .find("span.MuiCheckbox-root")
-                        .addClass("PrivateSwitchBase-checked-19 Mui-checked");
-                    $(this)
-                        .parent(".groupHeader")
-                        .children()
-                        .find("span.MuiCheckbox-root svg path")
-                        .attr(
-                            "d",
-                            "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-                        );
-                } else {
-                    $(this)
-                        .closest(".groupHeader")
-                        .siblings()
-                        .find(":checkbox")
-                        .prop("checked", true);
-                }
-            } else {
-                // uncheck all children
-                tableRef.current.dataManager.data.filter(item => {
-                    if (item[groupedItems[0]] === selectedVal) {
-                        item.checked = false;
-                        item.tableData.checked = false;
                     }
                 });
-                // this.checked = false;
-                // this.parentElement.parentElement.children[0].checked = false;
-                $(this)
-                    .closest(".groupHeader")
-                    .siblings()
-                    .find(":checkbox")
-                    .prop("checked", false);
-                $(this)
-                    .closest("input")
-                    .siblings()
-                    .find(":checkbox")
-                    .prop("checked", false);
-                $(this)
-                    .parent(".groupHeader")
-                    .children()
-                    .find(".groupCheck")
-                    .prop("checked", false);
-                $(this)
-                    .parents(".groupHeader")
-                    .find(".groupCheck")
-                    .prop("checked", false);
-                $(this)
-                    .parent(".groupHeader")
-                    .children()
-                    .find("span.MuiCheckbox-root")
-                    .removeClass("PrivateSwitchBase-checked-19 Mui-checked");
-                $(this)
-                    .parent(".groupHeader")
-                    .children()
-                    .find("span.MuiCheckbox-root svg path")
-                    .attr(
-                        "d",
-                        "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                    );
+
+            } else {
+
+                $(this).closest("input").siblings().find(":checkbox").prop("checked", false);
+                $(this).parent(".groupHeader").children().find("span.MuiCheckbox-root").removeClass("PrivateSwitchBase-checked-19 Mui-checked");
+                $(this).parent(".groupHeader").children().find("span.MuiCheckbox-root svg path").attr("d","M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z");
+                // uncheck all children
+                tableRef.current.dataManager.data.map(item => {
+                    for (var j = 0; j < groupedItems.length; j++) {
+                        if (item[groupedItems[j]] === selectedVal) {
+                            item.checked = false;
+                            item.tableData.checked = false;
+                        }
+                    }
+                });
+
+            }
+            if($(this).parent(".groupHeader").children().find("span.MuiCheckbox-root").hasClass('Mui-checked')) {
+                $(this).parent(".groupHeader").find('.groupCheck').prop('checked', false)
             }
         });
+
+
+        // $("input[type=checkbox]").on("change", function (e) {
+        //     // var selectedVal = $(this).parent('.groupHeader').children().find('tr').text().split(":", 2).pop().trim();
+        //     var selectedVal = this.nextElementSibling.textContent
+        //         .split(":", 2)
+        //         .pop()
+        //         .trim();
+
+        //     // if is checked
+        //     if (this.checked) {
+        //         // check all children
+        //         var lenchk = $(this)
+        //             .closest("input")
+        //             .find(":checkbox");
+        //         var lenchkChecked = $(this)
+        //             .closest("input")
+        //             .find(":checkbox:checked");
+        //         //if all siblings are checked, check its parent checkbox
+        //         if (lenchk.length == lenchkChecked.length) {
+        //             tableRef.current.dataManager.data.filter(item => {
+        //                 console.log("groupedItems", groupedItems);
+        //                 // if(groupedItems == selectedVal) {
+        //                 //     item.checked = true;
+        //                 //     item.tableData.checked = true;
+        //                 //     tableRefArr.push(item.RuleAutoID);
+        //                 // }
+        //                 for (let j = 0; j < groupedItems.length; j++) {
+        //                     if (item[groupedItems[j]] == selectedVal.replace(/["']/g, "")) {
+        //                         console.log("item[groupedItems[j]]", item[groupedItems[j]]);
+        //                         item.checked = true;
+        //                         item.tableData.checked = true;
+        //                         tableRefArr.push(item.RuleAutoID);
+        //                     }
+        //                 }
+        //             });
+        //             $(this)
+        //                 .closest("input")
+        //                 .siblings()
+        //                 .find(":checkbox")
+        //                 .prop("checked", true);
+        //             $(this)
+        //                 .parent(".groupHeader")
+        //                 .children()
+        //                 .find("span.MuiCheckbox-root")
+        //                 .addClass("PrivateSwitchBase-checked-19 Mui-checked");
+        //             $(this)
+        //                 .parent(".groupHeader")
+        //                 .children()
+        //                 .find("span.MuiCheckbox-root svg path")
+        //                 .attr(
+        //                     "d",
+        //                     "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+        //                 );
+        //         } else {
+        //             $(this)
+        //                 .closest(".groupHeader")
+        //                 .siblings()
+        //                 .find(":checkbox")
+        //                 .prop("checked", true);
+        //         }
+        //     } else {
+        //         // uncheck all children
+        //         tableRef.current.dataManager.data.filter((item, index) => {
+        //             for (let j = 0; j < groupedItems.length; j++) {
+        //                 if (item[groupedItems[j]] == selectedVal.replace(/["']/g, "")) {
+        //                     item.checked = false;
+        //                     item.tableData.checked = false;
+        //                 }
+        //             }
+        //         });
+        //         // this.checked = false;
+        //         // this.parentElement.parentElement.children[0].checked = false;
+        //         $(this)
+        //             .closest(".groupHeader")
+        //             .siblings()
+        //             .find(":checkbox")
+        //             .prop("checked", false);
+        //         $(this)
+        //             .closest("input")
+        //             .siblings()
+        //             .find(":checkbox")
+        //             .prop("checked", false);
+        //         $(this)
+        //             .parent(".groupHeader")
+        //             .children()
+        //             .find(".groupCheck")
+        //             .prop("checked", false);
+        //         $(this)
+        //             .parents(".groupHeader")
+        //             .find(".groupCheck")
+        //             .prop("checked", false);
+        //         $(this)
+        //             .parent(".groupHeader")
+        //             .children()
+        //             .find("span.MuiCheckbox-root")
+        //             .removeClass("PrivateSwitchBase-checked-19 Mui-checked");
+        //         $(this)
+        //             .parent(".groupHeader")
+        //             .children()
+        //             .find("span.MuiCheckbox-root svg path")
+        //             .attr(
+        //                 "d",
+        //                 "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+        //             );
+        //     }
+        // });
 
         // if (props.Table_Ref.status === "available" && data.length != undefined) {
         //     props.Table_Ref.setValue(
