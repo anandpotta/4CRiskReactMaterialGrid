@@ -11,6 +11,7 @@ import { Menu, MenuItem } from "@material-ui/core";
 
 import * as XLSX from "xlsx/xlsx.mjs";
 
+
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -86,32 +87,34 @@ function ReactMaterialGridComponent(props) {
         setLoadingOne(loadingOne);
     }, [props.rowData]);
 
-    const csvData = [];
+    let csvData = [];
     let dataSet = [];
     let groupedData;
     const exportCsv = (columns, data) => {
         debugger;
-
-        data.forEach(item => {
+        
+        data.forEach((item) => {
             delete item.Actions && delete item.RuleAutoID && delete item.tableData;
-        });
+          });
 
-        if (tableRef.current.dataManager.grouped != true) {
+        if(tableRef.current.dataManager.grouped != true)    {
             const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
-            columnNewData.forEach(column => {
+             columnNewData.forEach(column => {
                 dataSet = data.filter(row => delete !row[column.field]);
             });
         } else {
-            const groupedData = tableRef.current.dataManager.groupedData;
+            let groupedData = tableRef.current.dataManager.groupedData;
             function csvData(obj) {
                 if (obj.data.length > 0) {
                     obj.data.forEach(item => {
                         delete item.Actions && delete item.RuleAutoID && delete item.tableData;
                     });
-                    const groups = obj.path.map((e, idx) => ({ [`Group-${idx}`]: e }));
+                const groups = obj.path.map((e, idx) => {
+                    return { [`Group-${idx}`]: e };
+                });
                     dataSet = [...dataSet, ...groups, ...obj.data];
                 }
-
+                
                 if (obj.groups.length > 0) {
                     obj.groups.forEach(csvData);
                 }
@@ -122,7 +125,6 @@ function ReactMaterialGridComponent(props) {
 
         const workSheet = XLSX.utils.json_to_sheet(dataSet);
         const workBook = XLSX.utils.book_new();
-
         //XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
         XLSX.utils.book_append_sheet(workBook, workSheet, "xlxsdownload");
         //Buffer
@@ -131,7 +133,7 @@ function ReactMaterialGridComponent(props) {
         XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
         //Download
         XLSX.writeFile(workBook, tableTitle + ".xlsx");
-        //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
+       //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
     };
 
     const exportPdf = (columns, data) => {
@@ -146,23 +148,26 @@ function ReactMaterialGridComponent(props) {
             rowNewData = data.filter(row => delete !row[column.field]);
         });
         const columnTitles = columns
-            .map(columnDef => columnDef.title)
-            .filter(function (element) {
-                return element !== undefined;
-            });
-        if (tableRef.current.dataManager.grouped != true) {
-            dataSet = data.map(rowData => columns.map(columnDef => rowData[columnDef.field]));
+            .map(columnDef => columnDef.title).filter(function( element ) {
+        return element !== undefined;
+        });
+        if(tableRef.current.dataManager.grouped != true)    {
+            dataSet = data.map(rowData =>
+                columns.map(columnDef => rowData[columnDef.field]),
+            );
         } else {
-            const groupedData = tableRef.current.dataManager.groupedData;
+            let groupedData = tableRef.current.dataManager.groupedData;
             function csvData(obj) {
                 if (obj.data.length > 0) {
                     obj.data.forEach(item => {
                         delete item.Actions && delete item.RuleAutoID && delete item.tableData;
                     });
-                    const groups = obj.path.map((e, idx) => ({ [`Group-${idx}`]: e }));
+                const groups = obj.path.map((e, idx) => {
+                    return { [`Group-${idx}`]: e };
+                });
                     dataSet = [...dataSet, ...groups, ...obj.data];
                 }
-
+                
                 if (obj.groups.length > 0) {
                     obj.groups.forEach(csvData);
                 }
@@ -173,7 +178,7 @@ function ReactMaterialGridComponent(props) {
         // rows = rows.map(rowData => rowData.includes('Rule') && typeof(rowData) ? rowData.props.children)
         const doc = new jsPDF("landscape");
 
-        const header = function (data) {
+        const header = function(data) {
             doc.setFontSize(16);
             doc.setTextColor(40);
             doc.text(tableTitle, data.settings.margin.left, 22);
@@ -208,7 +213,7 @@ function ReactMaterialGridComponent(props) {
             },
             pageBreak: "auto",
             didDrawPage: header,
-            drawHeaderRow: function (row, data) {
+            drawHeaderRow: function(row, data) {
                 if (data.pageCount > 1) {
                     return false;
                 }
@@ -231,29 +236,27 @@ function ReactMaterialGridComponent(props) {
                 debugger;
 
                 const tableRefArr = [];
+                const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.tableData.checked === true);
 
-                const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.checked === true);
+                // if(data.length !== undefined){
+                //     data.forEach((obj, idx) => {
+                //         tableRefArr.push(obj.RuleAutoID);
+                //     });
 
-                if (data.length !== undefined) {
-                    data.forEach((obj, idx) => {
-                        tableRefArr.push(obj.RuleAutoID);
-                    });
-
-                    if (props.Table_Ref.status === "available" && data.length !== undefined) {
-                        if (tableRefArr.length === 1) {
-                            props.Table_Ref.setValue(JSON.stringify(JSON.parse(tableRefArr)));
-                        } else {
-                            props.Table_Ref.setValue(tableRefArr.join(","));
-                        }
-                    }
-                } else if (deleteSet.length > 0) {
-                    // const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.checked === true);
-                    // deleteSet &&
+                //     if (props.Table_Ref.status === "available" && data.length !== undefined) {
+                //         if (tableRefArr.length === 1) {
+                //             props.Table_Ref.setValue(JSON.stringify(JSON.parse(tableRefArr)));
+                //         } else {
+                //             props.Table_Ref.setValue(tableRefArr.join(","));
+                //         }
+                //     }
+                // } else 
+                if (deleteSet.length > 0) {
                     deleteSet.map(tdata => {
-                        if (tdata.tableData.checked == true && tdata.checked == true) {
-                            tableRefArr.push(tdata.RuleAutoID);
-                        }
-                    });
+                                if (tdata.tableData.checked == true) {
+                                    tableRefArr.push(tdata.RuleAutoID);
+                                }
+                            });
 
                     if (props.Table_Ref.status === "available" && tableRefArr.length != undefined) {
                         if (tableRefArr.length == 1) {
@@ -299,7 +302,11 @@ function ReactMaterialGridComponent(props) {
         });
     });
 
-    const handleCheckboxClick = event => {
+    if($('span').hasClass('Mui-checked')) {
+        console.log('am in');
+        $('span').closest('.groupHeader').find('.groupCheck').prop('checked', true)
+    }
+    const handleCheckboxClick = (event) => {
         debugger;
 
         const selectedSection = $(event.target)
@@ -310,172 +317,74 @@ function ReactMaterialGridComponent(props) {
             .trim();
         // $(event.target).next('tr').text().split(":").pop().trim()
         // tableRef.current.dataManager.groupedData[1].value.trim()?\
-
-        const groupedItems = [];
-        for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {
-            if (
-                tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&
-                tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1
-            ) {
-                groupedItems.push(tableRef.current.dataManager.columns[i].field);
-            }
-        }
+       
+        const groupedItems = [];	
+        for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {	
+            if (	
+                tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&	
+                tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1	
+            ) {	
+                groupedItems.push(tableRef.current.dataManager.columns[i].field);	
+            }	
+        }	
         console.log(groupedItems);
 
         const tableRefArr = [];
-        if($('.PrivateSwitchBase-input-22').parent('span').parent('span').hasClass('Mui-checked')) {
-            $('.PrivateSwitchBase-input-22').closest('.groupHeader').find('.groupCheck').prop('checked', true)
-        }
-        $("input[type=checkbox]").on("change", function() {
-            var selectedVal = this.nextElementSibling.textContent
-                .split(":", 2)
-                .pop()
+
+    
+        $('input[type=checkbox]').change(function(){
+            // var selectedVal = $(this).parent('.groupHeader').children().find('tr').text().split(":", 2).pop().trim();	
+            var selectedVal = this.nextElementSibling.textContent	
+                .split(":", 2)	
+                .pop()	
                 .trim();
-
             // if is checked
-           
-            if (this.checked) {
-                $(this).closest("input").siblings().find(":checkbox").prop("checked", true);
-                $(this).parent(".groupHeader").children().find("span.MuiCheckbox-root").addClass("PrivateSwitchBase-checked-19 Mui-checked");
-                $(this).parent(".groupHeader").children().find("span.MuiCheckbox-root svg path").attr("d", "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z");
-                tableRef.current.dataManager.data.map(item => {
-                    for (var j = 0; j < groupedItems.length; j++) {
-                        if (item[groupedItems[j]] === selectedVal) {
-                            item.checked = true;
-                            item.tableData.checked = true;
-                            tableRefArr.push(item.RuleAutoID);
+            if(this.checked){
+                // check all children
+                var lenchk = $(this).closest('input').find(':checkbox');
+                var lenchkChecked = $(this).closest('input').find(':checkbox:checked');
+        
+                //if all siblings are checked, check its parent checkbox
+                if (lenchk.length == lenchkChecked.length) {
+                    tableRef.current.dataManager.data.filter(item => {	
+                        for(let i=0; i<groupedItems.length; i++) {
+                            console.log('item[groupedItems[i]]', item[groupedItems[i]] );
+                            if (item[groupedItems[i]] === selectedVal) {	
+                                item.checked = true;	
+                                item.tableData.checked = true;	
+                                tableRefArr.push(item.RuleAutoID);	
+                                console.log('item.checked ', item.checked );
+                                console.log('item.tableData.checked', item.tableData.checked);
+                            }
                         }
-                    }
-                });
-
+                        	
+                    });
+                    $(this).closest('input').siblings().find(':checkbox').prop('checked', true);
+                    $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').addClass('PrivateSwitchBase-checked-19 Mui-checked');
+                    $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z");
+                }else{
+                    $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', true);
+                }
             } else {
-
-                $(this).closest("input").siblings().find(":checkbox").prop("checked", false);
-                $(this).parent(".groupHeader").children().find("span.MuiCheckbox-root").removeClass("PrivateSwitchBase-checked-19 Mui-checked");
-                $(this).parent(".groupHeader").children().find("span.MuiCheckbox-root svg path").attr("d","M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z");
                 // uncheck all children
-                tableRef.current.dataManager.data.map(item => {
-                    for (var j = 0; j < groupedItems.length; j++) {
-                        if (item[groupedItems[j]] === selectedVal) {
-                            item.checked = false;
-                            item.tableData.checked = false;
+                tableRef.current.dataManager.data.filter(item => {	
+                    for(let i=0; i<groupedItems.length; i++) {
+                        console.log('item[groupedItems[i]]', item[groupedItems[i]] );
+                        if (item[groupedItems[i]] === selectedVal) {	
+                            item.checked = false;	
+                            item.tableData.checked = false;	
                         }
                     }
                 });
-
-            }
-            if($(this).parent(".groupHeader").children().find("span.MuiCheckbox-root").hasClass('Mui-checked')) {
-                $(this).parent(".groupHeader").find('.groupCheck').prop('checked', false)
+                $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', false);
+                $(this).closest('input').siblings().find(':checkbox').prop('checked', false);
+                $(this).parent('.groupHeader').children().find('.groupCheck').prop('checked', false);
+                $(this).parents('.groupHeader').find('.groupCheck').prop('checked', false);
+                $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').removeClass('PrivateSwitchBase-checked-19 Mui-checked')
+                $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z");
             }
         });
-
-
-        // $("input[type=checkbox]").on("change", function (e) {
-        //     // var selectedVal = $(this).parent('.groupHeader').children().find('tr').text().split(":", 2).pop().trim();
-        //     var selectedVal = this.nextElementSibling.textContent
-        //         .split(":", 2)
-        //         .pop()
-        //         .trim();
-
-        //     // if is checked
-        //     if (this.checked) {
-        //         // check all children
-        //         var lenchk = $(this)
-        //             .closest("input")
-        //             .find(":checkbox");
-        //         var lenchkChecked = $(this)
-        //             .closest("input")
-        //             .find(":checkbox:checked");
-        //         //if all siblings are checked, check its parent checkbox
-        //         if (lenchk.length == lenchkChecked.length) {
-        //             tableRef.current.dataManager.data.filter(item => {
-        //                 console.log("groupedItems", groupedItems);
-        //                 // if(groupedItems == selectedVal) {
-        //                 //     item.checked = true;
-        //                 //     item.tableData.checked = true;
-        //                 //     tableRefArr.push(item.RuleAutoID);
-        //                 // }
-        //                 for (let j = 0; j < groupedItems.length; j++) {
-        //                     if (item[groupedItems[j]] == selectedVal.replace(/["']/g, "")) {
-        //                         console.log("item[groupedItems[j]]", item[groupedItems[j]]);
-        //                         item.checked = true;
-        //                         item.tableData.checked = true;
-        //                         tableRefArr.push(item.RuleAutoID);
-        //                     }
-        //                 }
-        //             });
-        //             $(this)
-        //                 .closest("input")
-        //                 .siblings()
-        //                 .find(":checkbox")
-        //                 .prop("checked", true);
-        //             $(this)
-        //                 .parent(".groupHeader")
-        //                 .children()
-        //                 .find("span.MuiCheckbox-root")
-        //                 .addClass("PrivateSwitchBase-checked-19 Mui-checked");
-        //             $(this)
-        //                 .parent(".groupHeader")
-        //                 .children()
-        //                 .find("span.MuiCheckbox-root svg path")
-        //                 .attr(
-        //                     "d",
-        //                     "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-        //                 );
-        //         } else {
-        //             $(this)
-        //                 .closest(".groupHeader")
-        //                 .siblings()
-        //                 .find(":checkbox")
-        //                 .prop("checked", true);
-        //         }
-        //     } else {
-        //         // uncheck all children
-        //         tableRef.current.dataManager.data.filter((item, index) => {
-        //             for (let j = 0; j < groupedItems.length; j++) {
-        //                 if (item[groupedItems[j]] == selectedVal.replace(/["']/g, "")) {
-        //                     item.checked = false;
-        //                     item.tableData.checked = false;
-        //                 }
-        //             }
-        //         });
-        //         // this.checked = false;
-        //         // this.parentElement.parentElement.children[0].checked = false;
-        //         $(this)
-        //             .closest(".groupHeader")
-        //             .siblings()
-        //             .find(":checkbox")
-        //             .prop("checked", false);
-        //         $(this)
-        //             .closest("input")
-        //             .siblings()
-        //             .find(":checkbox")
-        //             .prop("checked", false);
-        //         $(this)
-        //             .parent(".groupHeader")
-        //             .children()
-        //             .find(".groupCheck")
-        //             .prop("checked", false);
-        //         $(this)
-        //             .parents(".groupHeader")
-        //             .find(".groupCheck")
-        //             .prop("checked", false);
-        //         $(this)
-        //             .parent(".groupHeader")
-        //             .children()
-        //             .find("span.MuiCheckbox-root")
-        //             .removeClass("PrivateSwitchBase-checked-19 Mui-checked");
-        //         $(this)
-        //             .parent(".groupHeader")
-        //             .children()
-        //             .find("span.MuiCheckbox-root svg path")
-        //             .attr(
-        //                 "d",
-        //                 "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-        //             );
-        //     }
-        // });
-
+       
         // if (props.Table_Ref.status === "available" && data.length != undefined) {
         //     props.Table_Ref.setValue(
         //         tableRef.current.dataManager.groupedData.map(obj => JSON.parse(obj.RuleAutoID)).join(",")
@@ -503,8 +412,17 @@ function ReactMaterialGridComponent(props) {
         </div>
     );
 
+    const handleClick = (event, selectedRows) => { 
+        console.log(event)
+        console.log('selectedRows', selectedRows);
+        if(event.tableData.checked == true) {
+            $('span.Mui-checked').closest('.groupHeader').find('.groupCheck').prop('checked', true);
+        } else {
+            $('span').closest('.groupHeader').find('.groupCheck').prop('checked', false);
+        }
+    }
     return (
-        <div className="App 4cRiskDataGridWidget">
+        <div className="App">
             {/* {loadingOne ? <CircularProgress /> */}
             {/* : */}
             <MaterialTable
@@ -514,7 +432,7 @@ function ReactMaterialGridComponent(props) {
                 data={rows}
                 isLoading={loadingOne ?? <CircularProgress />}
                 actions={topBarActions}
-                onSelectionChange={selectedRows => console.log("selectedRows", selectedRows)}
+                onSelectionChange={(selectedRows, e) => handleClick(e, selectedRows) }
                 components={{
                     GroupRow: rowData => customRow(rowData)
                 }}
@@ -535,7 +453,7 @@ function ReactMaterialGridComponent(props) {
                     paginationPosition: props.paginationPosition,
                     pageSizeOptions: [5, 10, 20, 25, 50, 100],
                     pageSize: props.isPageSize,
-                    showSelectAllCheckbox: props.isSelectAllCheckbox.value,
+                    showSelectAllCheckbox: props.isSelectAllCheckbox.value,	
                     selection: props.isSelection.value,
                     paginationType: "stepped",
                     showFirstLastPageButtons: true,
@@ -545,10 +463,10 @@ function ReactMaterialGridComponent(props) {
                     exportFileName: tableTitle,
                     exportButton: {
                         csv: true,
-                        pdf: true
-                    },
-                    exportCsv: (data, columns) => exportCsv(data, columns),
-                    exportPdf: (data, columns) => exportPdf(data, columns),
+                        pdf: true,
+                     },
+                     exportCsv: (data, columns) =>  exportCsv(data, columns),
+                     exportPdf: (data, columns) =>  exportPdf(data, columns),
                     // exportCsv: (tableColumns, tableData) => exportCsv(tableColumns, tableData),
                     // exportPdf: (tableColumns, tableData) => exportPdf(tableColumns, tableData),
 
@@ -558,7 +476,7 @@ function ReactMaterialGridComponent(props) {
                     searchFieldVariant: "outlined",
                     addRowPosition: "first",
                     actionsColumnIndex: -1,
-                    showTextRowsSelected: true
+                    showTextRowsSelected: false
                 }}
                 title={""}
             />
