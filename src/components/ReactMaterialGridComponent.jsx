@@ -1,65 +1,72 @@
 import { createElement } from "react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import MaterialTable, { MTableAction, MTableBody, MTableGroupRow, MTableGroupbar } from "material-table";
-import { TableCell, TableFooter, TableRow } from "@material-ui/core";
-import { Button } from "react-bootstrap";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+//import MaterialTable, { MTableAction, MTableBody, MTableGroupRow, MTableGroupbar } from "material-table";
+import MaterialTable from "@material-table/core";
+import CircularProgress from "@material-ui/core/CircularProgress";
+
+//import {draggable} from 'react-beautiful-dnd';
+
+
+//import { TableCell, TableFooter, TableRow } from "@material-ui/core";
+//import { Button } from "react-bootstrap";
+// import Checkbox from "@material-ui/core/Checkbox";
+// import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 import { forwardRef } from "react";
-import { Menu, MenuItem } from "@material-ui/core";
+//import { Menu, MenuItem } from "@material-ui/core";
 
-import * as XLSX from "xlsx/xlsx.mjs";
+//import * as XLSX from "xlsx/xlsx.mjs";
+import * as XLSX from "xlsx-js-style";
 
 
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-import Save from "@material-ui/icons/Save";
-import Comment from "@material-ui/icons/Comment";
-import Share from "@material-ui/icons/Share";
-import AddBox from "@material-ui/icons/AddBox";
-import ArrowDownward from "@material-ui/icons/ArrowDownward";
-import Check from "@material-ui/icons/Check";
-import ChevronLeft from "@material-ui/icons/ChevronLeft";
-import ChevronRight from "@material-ui/icons/ChevronRight";
-import Clear from "@material-ui/icons/Clear";
-import DeleteOutline from "@material-ui/icons/DeleteOutline";
-import Edit from "@material-ui/icons/Edit";
-import FilterList from "@material-ui/icons/FilterList";
-import FirstPage from "@material-ui/icons/FirstPage";
-import LastPage from "@material-ui/icons/LastPage";
-import Remove from "@material-ui/icons/Remove";
-import SaveAlt from "@material-ui/icons/SaveAlt";
-import Search from "@material-ui/icons/Search";
-import ViewColumn from "@material-ui/icons/ViewColumn";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import Settings from "@material-ui/icons/Settings";
-// import { Skeleton } from "@material-ui/lab";
+// import Save from "@material-ui/icons/Save";
+// import Comment from "@material-ui/icons/Comment";
+// import Share from "@material-ui/icons/Share";
+// import AddBox from "@material-ui/icons/AddBox";
+// import ArrowDownward from "@material-ui/icons/ArrowDownward";
+// import Check from "@material-ui/icons/Check";
+// import ChevronLeft from "@material-ui/icons/ChevronLeft";
+// import ChevronRight from "@material-ui/icons/ChevronRight";
+// import Clear from "@material-ui/icons/Clear";
+// import DeleteOutline from "@material-ui/icons/DeleteOutline";
+// import Edit from "@material-ui/icons/Edit";
+// import FilterList from "@material-ui/icons/FilterList";
+// import FirstPage from "@material-ui/icons/FirstPage";
+// import LastPage from "@material-ui/icons/LastPage";
+// import Remove from "@material-ui/icons/Remove";
+// import SaveAlt from "@material-ui/icons/SaveAlt";
+// import Search from "@material-ui/icons/Search";
+// import ViewColumn from "@material-ui/icons/ViewColumn";
+// import MoreVertIcon from "@material-ui/icons/MoreVert";
+// import Settings from "@material-ui/icons/Settings";
+// // import { Skeleton } from "@material-ui/lab";
 
-const tableIcons = {
-    Save: forwardRef((props, ref) => <Save {...props} ref={ref} />),
-    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
-    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
-    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
-    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
-    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
-    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
-    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
-    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
-    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
-    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
-    SortArrow: forwardRef((props, ref) => <ArrowDownward {...props} ref={ref} />),
-    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
-    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
-    Comment: forwardRef((props, ref) => <Comment {...props} ref={ref} />),
-    Share: forwardRef((props, ref) => <Share {...props} ref={ref} />),
-    MoreVertIcon: forwardRef((props, ref) => <MoreVertIcon {...props} ref={ref} />)
-};
+// const tableIcons = {
+//     Save: forwardRef((props, ref) => <Save {...props} ref={ref} />),
+//     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+//     Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+//     Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+//     Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+//     DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+//     Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+//     Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+//     Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+//     FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+//     LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+//     NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+//     PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+//     ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+//     Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+//     SortArrow: forwardRef((props, ref) => <ArrowDownward {...props} ref={ref} />),
+//     ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+//     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
+//     Comment: forwardRef((props, ref) => <Comment {...props} ref={ref} />),
+//     Share: forwardRef((props, ref) => <Share {...props} ref={ref} />),
+//     MoreVertIcon: forwardRef((props, ref) => <MoreVertIcon {...props} ref={ref} />)
+// };
 
 function ReactMaterialGridComponent(props) {
     const tableRef = useRef();
@@ -69,6 +76,19 @@ function ReactMaterialGridComponent(props) {
     const [loadingOne, setLoadingOne] = useState(false);
     const actionProps = props.actionProps;
     const topBarActions = [];
+    // const topBarActions = [
+    //     {
+    //         icon: () => <button/>,
+    //         position: "toolbar",
+    //         hidden: !props.topbarObligationAction,
+    //         tooltip: "Generate Obligation",
+    //         onClick: () => {
+    //             setLoadingOne(!loadingOne);
+    //             props.onClickGenerateObligation(tableRef.current);
+    //             setLoadingOne(!loadingOne);
+    //         }
+    //     }
+    // ];
 
     // const [checked, setChecked] = React.useState(false);
 
@@ -87,9 +107,12 @@ function ReactMaterialGridComponent(props) {
         setLoadingOne(loadingOne);
     }, [props.rowData]);
 
+    
+
     let csvData = [];
-    let dataSet = [];
+    let deleteSet = [];
     let groupedData;
+    let dataSet = [];
     const exportCsv = (columns, data) => {
         debugger;
         
@@ -120,13 +143,82 @@ function ReactMaterialGridComponent(props) {
                 }
             }
             groupedData.forEach(csvData);
-            console.log(dataSet);
+            console.log('dataSet', dataSet);
         }
 
-        const workSheet = XLSX.utils.json_to_sheet(dataSet);
+        debugger;
+        const ws = XLSX.utils.json_to_sheet(dataSet);
         const workBook = XLSX.utils.book_new();
+        // ws["!cols"] = [];
+        // ws["!rows"] = [];
+
+        // console.log('ws["!cols"]', ws["!cols"]);
+        // console.log('ws["!rows"]', ws["!rows"]);
+        // ws["!cols"] = [
+        // { width: 30 }, // width for col A
+        // { width: 30 }, // width for col B
+        // { hidden: true }
+        // ]; // hidding col C
+
+        // ws["!rows"] = [
+        // { hpt: 30 }, // height for row 1
+        // { hpt: 30 }
+        // ]; //height for row 2
+
+        // for (let key in ws) {
+        //     if (ws.hasOwnProperty("A2")) {
+        //         delete ws[Object.keys(ws)[Object.keys(ws).length - 1]];  // "carrot"
+        //                 console.log(key + " -> " + ws[key]);
+        //                 ws[key].s = {
+        //                     fill: {
+        //                     patternType: 'solid', // none / solid
+        //                     fgColor: {rgb: 'FFD3D3D3'}
+        //                     }
+        //                 }
+        
+        //     }
+        // }
+
+        // ws["A2"].s = {
+        //     fill: {
+        //         patternType: "solid",
+        //         fgColor: { rgb: "C0C0C0" },
+        //         bgColor: { rgb: "808080" }
+        //     }
+        // };
+        // var colNum = XLSX.utils.decode_col("A");
+        // var range = XLSX.utils.decode_range(ws['!ref']);
+        // for(var i = range.s.r + 1; i <= range.e.r; ++i) {
+        // /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
+        //     var ref = XLSX.utils.encode_cell({r:i, c:colNum});
+        //     /* if the particular row did not contain data for the column, the cell will not be generated */
+        //     if(!ws[ref]) continue;
+        //     /* `.t == "n"` for number cells */
+        //     console.log('ws[ref]', ws[ref]);
+        //     /* assign the `.z` number format */
+        //     ws[ref].s = {
+        //         fill: {
+        //             patternType: "solid",
+        //             fgColor: { rgb: "C0C0C0" },
+        //             bgColor: { rgb: "808080" }
+        //         }
+        //     };
+        // }
+        // var range = { s: { c: 0, r: 0 }, e: { c: 10, r: 10 } }; // worksheet cell range 
+        // ws['!ref'] = XLSX.utils.encode_range(range); // set cell the range
+
+        // var cell = { // create cell
+        //     s: { // style
+        //         fill: {
+        //             fgColor: { rgb: "FF6666" } // red
+        //         }
+        //     }
+        // }
+        // ws[XLSX.utils.encode_cell({ c: 1, r: 1 })] = cell; 
+        
+
         //XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
-        XLSX.utils.book_append_sheet(workBook, workSheet, "xlxsdownload");
+        XLSX.utils.book_append_sheet(workBook, ws, "xlxsdownload");
         //Buffer
         XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
         //Binary string
@@ -147,6 +239,7 @@ function ReactMaterialGridComponent(props) {
         columnNewData.forEach(column => {
             rowNewData = data.filter(row => delete !row[column.field]);
         });
+        rowNewData = data;
         const columnTitles = columns
             .map(columnDef => columnDef.title).filter(function( element ) {
         return element !== undefined;
@@ -225,7 +318,8 @@ function ReactMaterialGridComponent(props) {
 
     const gridActionControls = props.actions.map(item => {
         topBarActions.push({
-            icon: () => <Button className={item.className} />,
+            icon: () => <button className={item.className} />,
+            
             // isFreeAction: item.isFreeAction,
             position: item.position,
             tooltip: item.actionName,
@@ -234,9 +328,8 @@ function ReactMaterialGridComponent(props) {
                 console.log("data-----", data);
                 console.log("TableRef:", tableRef.current);
                 debugger;
-
                 const tableRefArr = [];
-                const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.tableData.checked === true);
+                deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.tableData.checked === true);
 
                 // if(data.length !== undefined){
                 //     data.forEach((obj, idx) => {
@@ -252,6 +345,8 @@ function ReactMaterialGridComponent(props) {
                 //     }
                 // } else 
                 if (deleteSet.length > 0) {
+                    // const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.checked === true);
+                    // deleteSet && 
                     deleteSet.map(tdata => {
                                 if (tdata.tableData.checked == true) {
                                     tableRefArr.push(tdata.RuleAutoID);
@@ -296,94 +391,80 @@ function ReactMaterialGridComponent(props) {
                 }
 
                 if (item.onClickAction) {
-                    item.onClickAction.execute();
-                }
+                    if(item.actionName == "GenerateObligation") {
+                        setLoadingOne(!loadingOne);
+                        item.onClickAction.execute();
+                    } else {
+                        item.onClickAction.execute();
+                    }
+                } 
             }
         });
     });
 
-    if($('span').hasClass('Mui-checked')) {
-        console.log('am in');
-        $('span').closest('.groupHeader').find('.groupCheck').prop('checked', true)
-    }
-    const handleCheckboxClick = (event) => {
-        debugger;
+    // const handleCheckboxClick = (event) => {
+    //     debugger;
 
-        const selectedSection = $(event.target)
-            .next("tr")
-            .text()
-            .split(":", 2)
-            .pop()
-            .trim();
-        // $(event.target).next('tr').text().split(":").pop().trim()
-        // tableRef.current.dataManager.groupedData[1].value.trim()?\
+    //     const selectedSection = $(event.target)
+    //         .next("tr")
+    //         .text()
+    //         .split(":", 2)
+    //         .pop()
+    //         .trim();
+    //     // $(event.target).next('tr').text().split(":").pop().trim()
+    //     // tableRef.current.dataManager.groupedData[1].value.trim()?\
        
-        const groupedItems = [];	
-        for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {	
-            if (	
-                tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&	
-                tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1	
-            ) {	
-                groupedItems.push(tableRef.current.dataManager.columns[i].field);	
-            }	
-        }	
-        console.log(groupedItems);
+    //     const groupedItems = [];	
+    //     for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {	
+    //         if (	
+    //             tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&	
+    //             tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1	
+    //         ) {	
+    //             groupedItems.push(tableRef.current.dataManager.columns[i].field);	
+    //         }	
+    //     }	
+    //     console.log(groupedItems);
 
-        const tableRefArr = [];
+    //     const tableRefArr = [];
 
-    
-        $('input[type=checkbox]').change(function(){
-            // var selectedVal = $(this).parent('.groupHeader').children().find('tr').text().split(":", 2).pop().trim();	
-            var selectedVal = this.nextElementSibling.textContent	
-                .split(":", 2)	
-                .pop()	
-                .trim();
-            // if is checked
-            if(this.checked){
-                // check all children
-                var lenchk = $(this).closest('input').find(':checkbox');
-                var lenchkChecked = $(this).closest('input').find(':checkbox:checked');
+        // $('input[type=checkbox]').change(function(){
+        //     // if is checked
+        //     if(this.checked){
+        //         // check all children
+        //         var lenchk = $(this).closest('input').find(':checkbox');
+        //         var lenchkChecked = $(this).closest('input').find(':checkbox:checked');
         
-                //if all siblings are checked, check its parent checkbox
-                if (lenchk.length == lenchkChecked.length) {
-                    tableRef.current.dataManager.data.filter(item => {	
-                        for(let i=0; i<groupedItems.length; i++) {
-                            console.log('item[groupedItems[i]]', item[groupedItems[i]] );
-                            if (item[groupedItems[i]] === selectedVal) {	
-                                item.checked = true;	
-                                item.tableData.checked = true;	
-                                tableRefArr.push(item.RuleAutoID);	
-                                console.log('item.checked ', item.checked );
-                                console.log('item.tableData.checked', item.tableData.checked);
-                            }
-                        }
-                        	
-                    });
-                    $(this).closest('input').siblings().find(':checkbox').prop('checked', true);
-                    $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').addClass('PrivateSwitchBase-checked-19 Mui-checked');
-                    $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z");
-                }else{
-                    $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', true);
-                }
-            } else {
-                // uncheck all children
-                tableRef.current.dataManager.data.filter(item => {	
-                    for(let i=0; i<groupedItems.length; i++) {
-                        console.log('item[groupedItems[i]]', item[groupedItems[i]] );
-                        if (item[groupedItems[i]] === selectedVal) {	
-                            item.checked = false;	
-                            item.tableData.checked = false;	
-                        }
-                    }
-                });
-                $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', false);
-                $(this).closest('input').siblings().find(':checkbox').prop('checked', false);
-                $(this).parent('.groupHeader').children().find('.groupCheck').prop('checked', false);
-                $(this).parents('.groupHeader').find('.groupCheck').prop('checked', false);
-                $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').removeClass('PrivateSwitchBase-checked-19 Mui-checked')
-                $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z");
-            }
-        });
+        //         //if all siblings are checked, check its parent checkbox
+        //         if (lenchk.length == lenchkChecked.length) {
+        //             tableRef.current.dataManager.data.filter((item, index) => {	
+        //                 if (item[groupedItems[index]] !== undefined) {	
+        //                     item.checked = true;	
+        //                     item.tableData.checked = true;	
+        //                     tableRefArr.push(item.RuleAutoID);	
+        //                 }	
+        //             });
+        //             $(this).closest('input').siblings().find(':checkbox').prop('checked', true);
+        //             $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').addClass('PrivateSwitchBase-checked-19 Mui-checked');
+        //             $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z");
+        //         }else{
+        //             $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', true);
+        //         }
+        //     } else {
+        //         // uncheck all children
+        //         tableRef.current.dataManager.data.filter(item => {	
+        //             if (item[groupedItems[index]] !== undefined) {	
+        //                 item.checked = false;	
+        //                 item.tableData.checked = false;	
+        //             }
+        //         });
+        //         $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', false);
+        //         $(this).closest('input').siblings().find(':checkbox').prop('checked', false);
+        //         $(this).parent('.groupHeader').children().find('.groupCheck').prop('checked', false);
+        //         $(this).parents('.groupHeader').find('.groupCheck').prop('checked', false);
+        //         $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').removeClass('PrivateSwitchBase-checked-19 Mui-checked')
+        //         $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z");
+        //     }
+        // });
        
         // if (props.Table_Ref.status === "available" && data.length != undefined) {
         //     props.Table_Ref.setValue(
@@ -397,45 +478,35 @@ function ReactMaterialGridComponent(props) {
         //         props.Table_Ref.setValue(tableRefArr.join(","));
         //     }
         // }
-    };
+    //};
 
-    const customRow = rowData => (
-        <div className="groupHeader">
-            <input
-                data-val={rowData}
-                type="checkbox"
-                className="groupCheck"
-                onClick={event => handleCheckboxClick(event)}
-            />
-            <MTableGroupRow {...rowData} />
-            {/* <CustomGroupRow {...rowData} /> */}
-        </div>
-    );
+    // const customRow = rowData => (
+    //     <div className="groupHeader">
+    //         <input
+    //             data-val={rowData}
+    //             type="checkbox"
+    //             className="groupCheck"
+    //             onClick={event => handleCheckboxClick(event)}
+    //         />
+    //         {/* <MTableGroupRow {...rowData} /> */}
+    //         {/* <CustomGroupRow {...rowData} /> */}
+    //     </div>
+    // );
 
-    const handleClick = (event, selectedRows) => { 
-        console.log(event)
-        console.log('selectedRows', selectedRows);
-        if(event.tableData.checked == true) {
-            $('span.Mui-checked').closest('.groupHeader').find('.groupCheck').prop('checked', true);
-        } else {
-            $('span').closest('.groupHeader').find('.groupCheck').prop('checked', false);
-        }
-    }
     return (
         <div className="App">
             {/* {loadingOne ? <CircularProgress /> */}
             {/* : */}
             <MaterialTable
                 tableRef={tableRef}
-                icons={tableIcons}
                 columns={columnData}
                 data={rows}
                 isLoading={loadingOne ?? <CircularProgress />}
                 actions={topBarActions}
-                onSelectionChange={(selectedRows, e) => handleClick(e, selectedRows) }
-                components={{
-                    GroupRow: rowData => customRow(rowData)
-                }}
+                //onSelectionChange={selectedRows => console.log("selectedRows", selectedRows)}
+                // components={{
+                //     GroupRow: rowData => customRow(rowData)
+                // }}
                 options={{
                     showEmptyDataSourceMessage: loadingOne ?? <CircularProgress />,
                     minBodyHeight: 560,
@@ -460,13 +531,26 @@ function ReactMaterialGridComponent(props) {
 
                     //exportButton: props.topbarExportActions,
                     exportAllData: true,
-                    exportFileName: tableTitle,
-                    exportButton: {
-                        csv: true,
-                        pdf: true,
-                     },
-                     exportCsv: (data, columns) =>  exportCsv(data, columns),
-                     exportPdf: (data, columns) =>  exportPdf(data, columns),
+                    //exportFileName: tableTitle,
+                    // exportButton: {
+                    //     csv: true,
+                    //     pdf: true,
+                    //  },
+                    //  exportCsv: (data, columns) =>  exportCsv(data, columns),
+                    //  exportPdf: (data, columns) =>  exportCsv(data, columns),
+                     exportMenu: [
+                        {
+                          label: "Export PDF",
+                          //// You can do whatever you wish in this function. We provide the
+                          //// raw table columns and table data for you to modify, if needed.
+                          // exportFunc: (cols, datas) => console.log({ cols, datas })
+                          exportFunc: (data, columns) => exportPdf(data, columns, tableTitle),
+                        },
+                        {
+                          label: "Export CSV",
+                          exportFunc: (data, columns) => exportCsv(data, columns, tableTitle),
+                        },
+                      ],
                     // exportCsv: (tableColumns, tableData) => exportCsv(tableColumns, tableData),
                     // exportPdf: (tableColumns, tableData) => exportPdf(tableColumns, tableData),
 
@@ -476,7 +560,7 @@ function ReactMaterialGridComponent(props) {
                     searchFieldVariant: "outlined",
                     addRowPosition: "first",
                     actionsColumnIndex: -1,
-                    showTextRowsSelected: false
+                    showTextRowsSelected: true
                 }}
                 title={""}
             />
