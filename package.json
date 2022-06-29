@@ -6,7 +6,7 @@
   "author": "Anand Potta",
   "version": "1.0.0",
   "config": {
-    "projectPath": "../..//",
+    "projectPath": "C:/Users/4CRisk/Documents/Mendix/SearchPortal-main/",
     "mendixHost": "http://localhost:8080",
     "developmentPort": "3000"
   },
@@ -26,19 +26,22 @@
     "material-table": "^1.69.3"
   },
   "dependencies": {
-    "@material-table/core": "^5.0.0-experimental.0",
-    "@material-ui/core": "^4.12.3",
+    "@material-table/core": "^5.0.2",
+    "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.60",
     "classnames": "^2.2.6",
     "fs": "^0.0.1-security",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.23",
-    "react-bootstrap": "^2.0.3",
-    "react-element-to-jsx-string": "^14.3.4",
+    "material-ui-icons": "^1.0.0-beta.36",
+    "nvm": "^0.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-read-more-read-less": "^1.0.7",
     "react-show-more-text": "^1.5.2",
-    "typescript": "^4.6.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "xlsx-js-style": "^1.2.0",
+    "xlsx-style": "^0.8.13"
   }
 }
