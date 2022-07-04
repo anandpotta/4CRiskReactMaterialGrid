@@ -75,20 +75,17 @@ function ReactMaterialGridComponent(props) {
     const [rows, setRows] = useState(props.rowData);
     const [loadingOne, setLoadingOne] = useState(false);
     const actionProps = props.actionProps;
-    const topBarActions = [];
-    // const topBarActions = [
-    //     {
-    //         icon: () => <button/>,
-    //         position: "toolbar",
-    //         hidden: !props.topbarObligationAction,
-    //         tooltip: "Generate Obligation",
-    //         onClick: () => {
-    //             setLoadingOne(!loadingOne);
-    //             props.onClickGenerateObligation(tableRef.current);
-    //             setLoadingOne(!loadingOne);
-    //         }
-    //     }
-    // ];
+    //const topBarActions = [];
+    const topBarActions = [
+        {
+            icon: () => <button/>,
+            position: "toolbar",
+            tooltip: "Generate Obligation",
+            onClick: () => {
+                console.log('clicked');
+            }
+        }
+    ];
 
     // const [checked, setChecked] = React.useState(false);
 
@@ -149,7 +146,13 @@ function ReactMaterialGridComponent(props) {
         debugger;
         const ws = XLSX.utils.json_to_sheet(dataSet);
         const workBook = XLSX.utils.book_new();
-        // ws["!cols"] = [];
+        XLSX.utils.book_append_sheet(workBook, ws, tableTitle);
+
+
+
+        //create and downloading workbook
+        ws["!cols"] = [];
+        ws['!merges'] = [];
         // ws["!rows"] = [];
 
         // console.log('ws["!cols"]', ws["!cols"]);
@@ -186,24 +189,105 @@ function ReactMaterialGridComponent(props) {
         //         bgColor: { rgb: "808080" }
         //     }
         // };
-        // var colNum = XLSX.utils.decode_col("A");
-        // var range = XLSX.utils.decode_range(ws['!ref']);
-        // for(var i = range.s.r + 1; i <= range.e.r; ++i) {
-        // /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
-        //     var ref = XLSX.utils.encode_cell({r:i, c:colNum});
-        //     /* if the particular row did not contain data for the column, the cell will not be generated */
-        //     if(!ws[ref]) continue;
-        //     /* `.t == "n"` for number cells */
-        //     console.log('ws[ref]', ws[ref]);
-        //     /* assign the `.z` number format */
-        //     ws[ref].s = {
-        //         fill: {
-        //             patternType: "solid",
-        //             fgColor: { rgb: "C0C0C0" },
-        //             bgColor: { rgb: "808080" }
-        //         }
-        //     };
-        // }
+        var colNum = XLSX.utils.decode_col("A");
+        var range = XLSX.utils.decode_range(ws['!ref']);
+        var row = XLSX.utils.encode_row(range.s.r);
+        console.log('row', row);
+        for(var R = range.s.r + 1; R <= range.e.r; ++R) {
+            for(var C = range.s.c; C <= range.e.c; ++C) {
+                var cell_address = {c:C, r:R};
+              
+            /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
+                /* if the particular row did not contain data for the column, the cell will not be generated */
+                //if(!ws[ref]) continue;
+                /* `.t == "n"` for number cells */
+                var ref = XLSX.utils.encode_cell({c:C, r:R});
+                console.log('ws[ref]', ws[ref]);
+                //console.log('default',  ws[`${XLSX.utils.encode_col(C)}0`].v);
+                let str = ws[`${XLSX.utils.encode_col(C)}1`].v;
+                const substring = "Group-";
+                console.log('substring', str.includes(substring));
+                    /* assign the `.z` number format */
+                    if(ws[ref] == undefined) {
+                        ws[ref] = {t: 's', v: ''}
+                        ws[ref].s = {
+                            fill: {
+                                patternType: "solid",
+                                fgColor: { rgb: "C0C0C0" },
+                                bgColor: { rgb: "808080" },
+                            },
+                            border: {
+                            top: { style: 'thin', color: { rgb: "C0C0C0" } },
+                            right: { style: 'thin', color: { rgb: "C0C0C0" } },
+                            bottom: { style: 'thin', color: { rgb: "C0C0C0" } },
+                            left: { style: 'thin', color: { rgb: "C0C0C0" } }
+                            }
+                        };
+                        // const merge = [
+                        //     { s: cell_address },
+                        //   ];
+                        //ws["!merges"] = {cell_address};
+
+                    }
+                    if(str.includes(substring)) {
+                        // ws["!cols"]  = [
+                        //     {wch:200},
+                        //     {wch:75},
+                        //     {wch:100},
+                        //     {wch:150}
+                        // ];
+                        
+                        // ws['!cols'] = wscols;
+                        ws[ref].s = {
+                            fill: {
+                                patternType: "solid",
+                                fgColor: { rgb: "C0C0C0" },
+                                bgColor: { rgb: "808080" },
+                            },
+                            border: {
+                            top: { style: 'thin', color: { rgb: "C0C0C0" } },
+                            right: { style: 'thin', color: { rgb: "C0C0C0" } },
+                            bottom: { style: 'thin', color: { rgb: "C0C0C0" } },
+                            left: { style: 'thin', color: { rgb: "C0C0C0" } }
+                            },
+
+                        };
+                        // const merge = [
+                        //     { s: cell_address },
+                        //   ];
+                          //ws["!merges"] = {cell_address};
+                        let strSplit = parseInt(str.split('-')[1]);
+                        const merge = [
+                            {s: {r: 1, c: 0}, e: {r:strSplit + 1, c: range.e.c }} 
+                        ];
+                        ws["!merges"] = merge;
+                        
+                    }
+   
+                    // const merge = [
+                    // { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } } ,
+                    // ];
+                    // ws["!merges"] = merge;
+                 console.log('header key', ws[`${XLSX.utils.encode_col(C)}1`].v);
+                // if(!str.includes(substring)) {
+                //     ws[ref].s = {
+                //         fill: {
+                //             patternType: "solid",
+                //             fgColor: { rgb: "FFFFFF" },
+                //             bgColor: { rgb: "FFFFFF" },
+                //         },
+                //     };
+                // }
+
+            }
+
+        }
+        // const merge = [
+        // { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } } ,
+        // ];
+        // ws["!merges"] = merge;
+        var rowNum = XLSX.utils.decode_row("A2");
+        console.log(rowNum);
         // var range = { s: { c: 0, r: 0 }, e: { c: 10, r: 10 } }; // worksheet cell range 
         // ws['!ref'] = XLSX.utils.encode_range(range); // set cell the range
 
@@ -218,7 +302,7 @@ function ReactMaterialGridComponent(props) {
         
 
         //XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
-        XLSX.utils.book_append_sheet(workBook, ws, "xlxsdownload");
+        //XLSX.utils.book_append_sheet(workBook, ws, "xlxsdownload");
         //Buffer
         XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
         //Binary string
