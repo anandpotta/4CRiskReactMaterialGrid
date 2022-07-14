@@ -1,11 +1,10 @@
 import { createElement } from "react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 //import MaterialTable, { MTableAction, MTableBody, MTableGroupRow, MTableGroupbar } from "material-table";
-import MaterialTable from "@material-table/core";
+import MaterialTable, { MTableHeader } from "@material-table/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 //import {draggable} from 'react-beautiful-dnd';
-
 
 //import { TableCell, TableFooter, TableRow } from "@material-ui/core";
 //import { Button } from "react-bootstrap";
@@ -17,7 +16,6 @@ import { forwardRef } from "react";
 
 //import * as XLSX from "xlsx/xlsx.mjs";
 import * as XLSX from "xlsx-js-style";
-
 
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -76,22 +74,6 @@ function ReactMaterialGridComponent(props) {
     const [loadingOne, setLoadingOne] = useState(false);
     const actionProps = props.actionProps;
     const topBarActions = [];
-    // const topBarActions = [
-    //     {
-    //         icon: () => <button/>,
-    //         position: "toolbar",
-    //         tooltip: "Generate Obligation",
-    //         onClick: () => {
-    //             console.log('clicked');
-    //         }
-    //     }
-    // ];
-
-    // const [checked, setChecked] = React.useState(false);
-
-    // const handleDeleteRows = (event, rowData) => {
-    //     debugger;
-    // };
 
     useEffect(() => {
         debugger;
@@ -99,56 +81,46 @@ function ReactMaterialGridComponent(props) {
     }, [props.columnData]);
 
     useEffect(() => {
+        if (document.querySelector(".scrollButtonL")) {
+            document.querySelector(".scrollButtonL").style.display = "none";
+        }
+    });
+
+    useEffect(() => {
         setLoadingOne(!loadingOne);
         setRows(props.rowData);
         setLoadingOne(loadingOne);
     }, [props.rowData]);
 
-    
-
-    let csvData = [];
+    const csvData = [];
     let deleteSet = [];
     let groupedData;
     let dataSet = [];
     const exportCsv = (columns, data) => {
         debugger;
-        
-        
-        // data.forEach((item) => {
-        //     delete item.Actions && delete item.RuleAutoID && delete item.tableData;
-        //   });
-        // data.filter(item => { 
-        //     Object.values(item).forEach((data) => {
-        //         if(data !== '') {
-        //             return data
-        //         }
-        //     })
-        // });
 
-        if(tableRef.current.dataManager.grouped != true)    {
+        if (tableRef.current.dataManager.grouped != true) {
             const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
-             columnNewData.forEach(column => {
+            columnNewData.forEach(column => {
                 dataSet = data.filter(row => delete !row[column.field]);
             });
         } else {
-            let groupedData = tableRef.current.dataManager.groupedData;
+            const groupedData = tableRef.current.dataManager.groupedData;
             function csvData(obj) {
                 if (obj.data.length > 0) {
                     // obj.data.forEach(item => {
                     //     delete item.Actions && delete item.RuleAutoID && delete item.tableData;
                     // });
-                const groups = obj.path.map((e, idx) => {
-                    return { [`Group-${idx}`]: e };
-                });
+                    const groups = obj.path.map((e, idx) => ({ [`Group-${idx}`]: e }));
                     dataSet = [...dataSet, ...groups, ...obj.data];
                 }
-                
+
                 if (obj.groups.length > 0) {
                     obj.groups.forEach(csvData);
                 }
             }
             groupedData.forEach(csvData);
-            console.log('dataSet', dataSet);
+            console.log("dataSet", dataSet);
         }
 
         debugger;
@@ -156,289 +128,101 @@ function ReactMaterialGridComponent(props) {
         const workBook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workBook, ws, tableTitle);
 
-
-
         //create and downloading workbook
 
-        // ws["!rows"] = [];
-
-        // console.log('ws["!cols"]', ws["!cols"]);
-        // console.log('ws["!rows"]', ws["!rows"]);
-        // ws["!cols"] = [
-        // { width: 30 }, // width for col A
-        // { width: 30 }, // width for col B
-        // { hidden: true }
-        // ]; // hidding col C
-
-        // ws["!rows"] = [
-        // { hpt: 30 }, // height for row 1
-        // { hpt: 30 }
-        // ]; //height for row 2
-
-        // for (let key in ws) {
-        //     if (ws.hasOwnProperty("A2")) {
-        //         delete ws[Object.keys(ws)[Object.keys(ws).length - 1]];  // "carrot"
-        //                 console.log(key + " -> " + ws[key]);
-        //                 ws[key].s = {
-        //                     fill: {
-        //                     patternType: 'solid', // none / solid
-        //                     fgColor: {rgb: 'FFD3D3D3'}
-        //                     }
-        //                 }
-        
-        //     }
-        // }
-
-        // ws["A2"].s = {
-        //     fill: {
-        //         patternType: "solid",
-        //         fgColor: { rgb: "C0C0C0" },
-        //         bgColor: { rgb: "808080" }
-        //     }
-        // };
         var colNum = XLSX.utils.decode_col("A");
-        var range = XLSX.utils.decode_range(ws['!ref']);
+        var range = XLSX.utils.decode_range(ws["!ref"]);
         var row = XLSX.utils.encode_row(range.s.r);
         var C = range.s.c;
 
-        let merge = [];
+        const merge = [];
         var wscols = [];
 
-        let strSplit = [];
+        const strSplit = [];
         ws["!cols"] = [];
-        ws['!merges'] = [];
-        console.log('row', row);
-        //ws['!cols'] = fitToColumn(dataSet);
+        ws["!merges"] = [];
+        console.log("row", row);
 
+        for (var R = range.s.r + 1; R <= range.e.r - 1; ++R) {
+            for (C = range.s.c; C <= range.e.c; ++C) {
+                var cell_address = { c: C, r: R };
 
-        // function fitToColumn(dataSet) {
-        //     // get maximum character of each column
-        //     return dataSet[0].map((a, i) => ({ wch: Math.max(...dataSet.map(a2 => a2[i] ? a2[i].toString().length : 0)) }));
-        // }
-        
-        for(var R = range.s.r + 1; R <= range.e.r-1; ++R) {
-            for(C = range.s.c; C <= range.e.c; ++C) {   
-                var cell_address = {c:C, r:R};
-                // if(C == 0) {
-                //     console.log('row value', R);
-                //     console.log('ws[ref]', ws[ref]);
-                //     if(ws[ref] == undefined) {
-                //         ws[ref] = {t: 's', v: ''}
-                //         ws[ref].s = {
-                //             fill: {
-                //                 fgColor: { rgb: "FF6666" },
-                //                 bgColor: { rgb: "FF6666" },
-                //             }
-                //         };
-                //     }
-                // }
-            /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
-                /* if the particular row did not contain data for the column, the cell will not be generated */
-                //if(!ws[ref]) continue;
                 /* `.t == "n"` for number cells */
-                var ref = XLSX.utils.encode_cell({c:C, r:R});
-                console.log('ws[ref]', ws[ref]);
+                var ref = XLSX.utils.encode_cell({ c: C, r: R });
+                console.log("ws[ref]", ws[ref]);
                 //console.log('default',  ws[`${XLSX.utils.encode_col(C)}0`].v);
-                
-                    /* assign the `.z` number format */
-                    if(ws[ref] == undefined) {
-                        ws[ref] = {t: 's', v: ''}
-                        ws[ref].s = {
-                            fill: {
-                                patternType: "solid",
-                                fgColor: { rgb: "f2f2f2" },
-                                bgColor: { rgb: "f2f2f2" },
-                            },
-                            border: {
-                            top: { style: 'thin', color: { rgb: "f2f2f2" } },
-                            right: { style: 'thin', color: { rgb: "f2f2f2" } },
-                            bottom: { style: 'thin', color: { rgb: "f2f2f2" } },
-                            left: { style: 'thin', color: { rgb: "f2f2f2" } }
-                            }
-                        };
-                      
-                        //merge.push({ s: {c:0, r:R}, e: {c:C+1, r:R} });
-                            //console.log('merge', merge);
-                            // merge.push({ s: { r: R, c: R - 1}, e: { r: R, c: range.e.c } });
-                            // console.log("merge", merge);
 
-                            // ws["!merges"] = merge;
+                /* assign the `.z` number format */
+                if (ws[ref] == undefined) {
+                    ws[ref] = { t: "s", v: "" };
+                    ws[ref].s = {
+                        fill: {
+                            patternType: "solid",
+                            fgColor: { rgb: "f2f2f2" },
+                            bgColor: { rgb: "f2f2f2" }
+                        },
+                        border: {
+                            top: { style: "thin", color: { rgb: "f2f2f2" } },
+                            right: { style: "thin", color: { rgb: "f2f2f2" } },
+                            bottom: { style: "thin", color: { rgb: "f2f2f2" } },
+                            left: { style: "thin", color: { rgb: "f2f2f2" } }
+                        }
+                    };
+                }
+                const str = ws[`${XLSX.utils.encode_col(C)}1`].v;
+                const substring = "Group-";
+                console.log("substring", str.includes(substring));
 
-                    }
-                    let str = ws[`${XLSX.utils.encode_col(C)}1`].v;
-                    const substring = "Group-";
-                    console.log('substring', str.includes(substring));
-                    // if(str.includes(substring)) {
-                    //     console.log('inside if');
-                    //     for(let col =0; col <= C; col++) {
-                    //         wscols.push({width: C[col].length});
-                    //         ws['!cols'] = wscols;
-                    //         console.log('header cols', ws['!cols']);
-                    //     }
-                    // }
-                    
-                    if(str.includes(substring) && ws[ref].v !== '') {
-                        console.log('how many times', str.includes(substring));
-                        // wscols.push({width: 5});
-                        // ws['!cols'] = wscols;
-    
-                        // console.log('header cols', ws['!cols']);
-                        
+                if (str.includes(substring) && ws[ref].v !== "") {
+                    console.log("how many times", str.includes(substring));
+                    // wscols.push({width: 5});
+                    // ws['!cols'] = wscols;
 
-                        ws[ref].s = {
-                            font: {
-                                size: "18",
-                                bold: true,
-                                color: { rgb: "000000" }
-                            },
-                            fill: {
-                                patternType: "solid",
-                                fgColor: { rgb: "f2f2f2" },
-                                bgColor: { rgb: "f2f2f2" },
-                            },
-                            border: {
-                            top: { style: 'thin', color: { rgb: "f2f2f2" } },
-                            right: { style: 'thin', color: { rgb: "f2f2f2" } },
-                            bottom: { style: 'thin', color: { rgb: "f2f2f2" } },
-                            left: { style: 'thin', color: { rgb: "f2f2f2" } }
-                            },
+                    // console.log('header cols', ws['!cols']);
 
-                        };
+                    ws[ref].s = {
+                        font: {
+                            size: "18",
+                            bold: true,
+                            color: { rgb: "000000" }
+                        },
+                        fill: {
+                            patternType: "solid",
+                            fgColor: { rgb: "f2f2f2" },
+                            bgColor: { rgb: "f2f2f2" }
+                        },
+                        border: {
+                            top: { style: "thin", color: { rgb: "f2f2f2" } },
+                            right: { style: "thin", color: { rgb: "f2f2f2" } },
+                            bottom: { style: "thin", color: { rgb: "f2f2f2" } },
+                            left: { style: "thin", color: { rgb: "f2f2f2" } }
+                        }
+                    };
 
-                        console.log('ws[ref]----------------', ws[ref]);
-                        console.log('ws[ref] val----------------', ws[ref].v);
-                        console.log('All cols', C);
-                        console.log('All rows', R);
-                        console.log('All cols range start', range.s.c);
-                        console.log('All cols range end', range.e.c);
-                        console.log('All row range start', range.s.r);
-                        console.log('All rows range end', range.e.r);
-                        merge.push(  { s: { r: R, c: C }, e: { r: R, c:range.e.c } })
-                        console.log("merge", merge);
-                        ws["!merges"] = merge;
-
-                        // let innerCol = [];
-                        // innerCol.push(C);
-                        // console.log('innerCol', innerCol);
-                        // for(let col =0; col<= innerCol.length; col++) {
-                        //     wscols.push({width: innerCol + 2});
-                        //     ws['!cols'] = wscols;
-                        //     console.log('header cols', ws['!cols']);
-                        // }
-                    }
-                    
-                        //merge.push(  { s: { r: 1, c: 0 }, e: { r: 1, c:19 } },{ s: { r: 2, c: 1 }, e: { r: 2, c: 19 } })
-                        // merge.push(  { s: { r: R, c: R -1  }, e: { r: R, c: range.e.c } });
-                        // console.log("merge", merge);
-
-                        // ws["!merges"] = merge;
-                        //merge.push({ s: {c:0, r:R}, e: {c:C+1, r:R} });
-                            //console.log('merge', merge);
-                        //ws["!merges"] = merge;
-                        // const merge = [
-                        //     { s: cell_address },
-                        //   ];
-                          //ws["!merges"] = {cell_address};
-                        //str.split(substring).filter(el => el != "" && strSplit.push(el));
-                        // for (let y = 0; y <= strSplit.length; y++) {
-
-                        //         console.log("strSplit----------", strSplit[y], "R", R, "C", C);
-
-                        //         //if(strSplit[y] != undefined && !isNaN(parseInt(strSplit[y]))){
-                        //             //if(ws[ref].v === '') {
-
-                        //             //merge.push({ s: {c:0, r:R}, e: {c:C+1, r:R} });
-                        //             merge.push({ s: { r: R, c: C }, e: { r: R, c: range.e.c } });
-                        //             console.log("merge", merge);
-
-                        //             ws["!merges"] = merge;
-
-                        //         //}
-
-                        //     }
-                        //if(ws[ref].v === '') {
-
-                            //merge.push({ s: {c:0, r:R}, e: {c:C+1, r:R} });
-                            // merge.push({ s: { r: R, c: R - 1}, e: { r: R, c: range.e.c } });
-                            // console.log("merge", merge);
-
-                            // ws["!merges"] = merge;
-
-                        //}
-                        
-                    
-   
-                    // const merge = [
-                    // {   s: {//s is the beginning
-                    //     c: 1,//start column
-                    //     r: 1//start value range
-                    // },
-                    // e: {//e end
-                    //     c: 20,//End column
-                    //     r: 1//end range
-                    // }} ,
-                    // ];
-                    // ws["!merges"] = merge;
-                    // let strSplit = parseInt(str.split('-')[1]);
-                    // if(!isNaN(strSplit)) {
-                    //     const merge = [
-                    //         { s: { r: R, c: strSplit }, e: { r: R, c: range.e.c} } ,
-                    //         ];
-                    //         console.log('merge', merge);
-                    //         ws["!merges"] = Object.values(merge);
-                    // }
-
-
-
-                 console.log('header key', ws[`${XLSX.utils.encode_col(C)}1`].v);
-
-                 //console.log('merge', merge);
-                 //ws["!merges"] = merge;
-
-                // if(!str.includes(substring)) {
-                //     ws[ref].s = {
-                //         fill: {
-                //             patternType: "solid",
-                //             fgColor: { rgb: "FFFFFF" },
-                //             bgColor: { rgb: "FFFFFF" },
-                //         },
-                //     };
-                // }
-                
-                wscols.push({width: range.e.c * 2});
-
+                    console.log("ws[ref]----------------", ws[ref]);
+                    console.log("ws[ref] val----------------", ws[ref].v);
+                    console.log("All cols", C);
+                    console.log("All rows", R);
+                    console.log("All cols range start", range.s.c);
+                    console.log("All cols range end", range.e.c);
+                    console.log("All row range start", range.s.r);
+                    console.log("All rows range end", range.e.r);
+                    merge.push({ s: { r: R, c: C }, e: { r: R, c: range.e.c } });
+                    console.log("merge", merge);
+                    ws["!merges"] = merge;
+                }
+                console.log("header key", ws[`${XLSX.utils.encode_col(C)}1`].v);
+                wscols.push({ width: range.e.c * 2 });
             }
-            
-            //console.log('outside', str);
-            //str.includes(substring);
-            //strSplit = strSplit.splice(0,2);
-            // for (let y = 0; y <= strSplit.length; y++) {
-
-            //     console.log("strSplit----------", strSplit[y], "R", R, "C", C);
-
-            //     //if(strSplit[y] != undefined && !isNaN(parseInt(strSplit[y]))){
-            //         if(strSplit[y]) {
-
-            //         //merge.push({ s: {c:0, r:R}, e: {c:C+1, r:R} });
-            //         //merge.push({ s: { r: R, c: R - 1 }, e: { r: R, c: range.e.c } });
-            //         merge.push(  { s: { r: 1, c: 0 }, e: { r: 1, c:19 } },{ s: { r: 2, c: 1 }, e: { r: 2, c: 19 } })
-            //         console.log("merge", merge);
-
-            //         ws["!merges"] = merge;
-
-            //     }
-
-            // }
-            
         }
 
-        let groupCols = [];
-        for(let col = 0; col <= range.e.c; ++col) { 
-            let str = ws[`${XLSX.utils.encode_col(col)}1`].v;
+        const groupCols = [];
+        for (let col = 0; col <= range.e.c; ++col) {
+            const str = ws[`${XLSX.utils.encode_col(col)}1`].v;
             const substring = "Group-";
-            if(str.includes(substring)) {
-                groupCols.push({width: 2});
-                let alphabet = [...Array(range.e.c+1)].map((e,i)=>(i+10).toString(36).toUpperCase()+'1')
+            if (str.includes(substring)) {
+                groupCols.push({ width: 2 });
+                const alphabet = [...Array(range.e.c + 1)].map((e, i) => (i + 10).toString(36).toUpperCase() + "1");
                 console.log("alphabet for first two", alphabet[col]);
                 ws[alphabet[col]].s = {
                     font: {
@@ -451,8 +235,8 @@ function ReactMaterialGridComponent(props) {
                 };
             }
 
-            if(!str.includes(substring)) {
-                let alphabet = [...Array(range.e.c+1)].map((e,i)=>(i+10).toString(36).toUpperCase()+'1')
+            if (!str.includes(substring)) {
+                const alphabet = [...Array(range.e.c + 1)].map((e, i) => (i + 10).toString(36).toUpperCase() + "1");
                 console.log("alphabet", alphabet[col]);
                 ws[alphabet[col]].s = {
                     font: {
@@ -467,69 +251,8 @@ function ReactMaterialGridComponent(props) {
                 };
             }
         }
-
-        
-
-        console.log('ws[cols]', wscols);
-        ws['!cols'] = [...groupCols, ...wscols];
-
-        //const substring = "Group-";
-        //console.log('substring', str.includes(substring));
-        // if(str.includes(substring) && ws[ref].v === '') {
-        //     console.log('how many times', str.includes(substring));
-        //     merge.push(  { s: { r: R, c: R -1  }, e: { r: R, c: range.e.c } });
-        //     console.log("merge", merge);
-
-        //     ws["!merges"] = merge;
-        // }
-        // str.split(substring).filter(el => el != "" && strSplit.push(el));
-        // for (let y = 0; y <= strSplit.length; y++) {
-
-        //         console.log("strSplit----------", strSplit[y], "R", R, "C", C);
-
-        //         if(strSplit[y] != undefined && !isNaN(parseInt(strSplit[y]))){
-        //             //if(ws[ref].v === '') {
-
-        //             //merge.push({ s: {c:0, r:R}, e: {c:C+1, r:R} });
-        //             merge.push(  { s: { r: 1, c: 0 }, e: { r: 1, c:19 } },{ s: { r: 2, c: 1 }, e: { r: 2, c: 19 } })
-        //             //merge.push({ s: { r: parseInt(strSplit[y]), c: parseInt(strSplit[y])}, e: { r: parseInt(strSplit[y]) + 1, c: range.e.c } });
-        //             console.log("merge", merge);
-
-        //             ws["!merges"] = merge;
-
-        //         }
-
-        //     }
-        
-        
-        //let strSplit = parseInt(str.split('-')[1]);
-        // const merge = [
-        // { s: { r: 1, c: 0 }, e: { r: 2, c: 0 } } ,
-        // ];
-        // ws["!merges"] = merge;
-        // var rowNum = XLSX.utils.decode_row("A2");
-        // console.log(rowNum);
-        // var range = { s: { c: 0, r: 0 }, e: { c: 10, r: 10 } }; // worksheet cell range 
-        // ws['!ref'] = XLSX.utils.encode_range(range); // set cell the range
-
-        // var cell = { // create cell
-        //     s: { // style
-        //         fill: {
-        //             fgColor: { rgb: "FF6666" },
-        //             bgColor: {rgb: "FF6666"  } // red
-        //         }
-        //     }
-        // }
-        // console.log('cell', cell);
-        // ws[XLSX.utils.encode_cell({ c: 10, r: 1 })] = cell; 
-        // ws["A1"].s = {
-        //     fill: {
-        //         patternType: "solid",
-        //         fgColor: { rgb: "FF6666" },
-        //         bgColor: { rgb: "FF6666" }
-        //     }
-        // };
-        
+        console.log("ws[cols]", wscols);
+        ws["!cols"] = [...groupCols, ...wscols];
 
         //XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
         //XLSX.utils.book_append_sheet(workBook, ws, "xlxsdownload");
@@ -539,7 +262,7 @@ function ReactMaterialGridComponent(props) {
         XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
         //Download
         XLSX.writeFile(workBook, tableTitle + ".xlsx");
-       //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
+        //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
     };
 
     const exportPdf = (columns, data) => {
@@ -555,26 +278,23 @@ function ReactMaterialGridComponent(props) {
         });
         rowNewData = data;
         const columnTitles = columns
-            .map(columnDef => columnDef.title).filter(function( element ) {
-        return element !== undefined;
-        });
-        if(tableRef.current.dataManager.grouped != true)    {
-            dataSet = data.map(rowData =>
-                columns.map(columnDef => rowData[columnDef.field]),
-            );
+            .map(columnDef => columnDef.title)
+            .filter(function(element) {
+                return element !== undefined;
+            });
+        if (tableRef.current.dataManager.grouped != true) {
+            dataSet = data.map(rowData => columns.map(columnDef => rowData[columnDef.field]));
         } else {
-            let groupedData = tableRef.current.dataManager.groupedData;
+            const groupedData = tableRef.current.dataManager.groupedData;
             function csvData(obj) {
                 if (obj.data.length > 0) {
                     obj.data.forEach(item => {
                         delete item.Actions && delete item.RuleAutoID && delete item.tableData;
                     });
-                const groups = obj.path.map((e, idx) => {
-                    return { [`Group-${idx}`]: e };
-                });
+                    const groups = obj.path.map((e, idx) => ({ [`Group-${idx}`]: e }));
                     dataSet = [...dataSet, ...groups, ...obj.data];
                 }
-                
+
                 if (obj.groups.length > 0) {
                     obj.groups.forEach(csvData);
                 }
@@ -633,7 +353,7 @@ function ReactMaterialGridComponent(props) {
     const gridActionControls = props.actions.map(item => {
         topBarActions.push({
             icon: () => <button className={item.className} />,
-            
+
             // isFreeAction: item.isFreeAction,
             position: item.position,
             tooltip: item.actionName,
@@ -657,15 +377,15 @@ function ReactMaterialGridComponent(props) {
                 //             props.Table_Ref.setValue(tableRefArr.join(","));
                 //         }
                 //     }
-                // } else 
+                // } else
                 if (deleteSet.length > 0) {
                     // const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.checked === true);
-                    // deleteSet && 
+                    // deleteSet &&
                     deleteSet.map(tdata => {
-                                if (tdata.tableData.checked == true) {
-                                    tableRefArr.push(tdata.RuleAutoID);
-                                }
-                            });
+                        if (tdata.tableData.checked == true) {
+                            tableRefArr.push(tdata.RuleAutoID);
+                        }
+                    });
 
                     if (props.Table_Ref.status === "available" && tableRefArr.length != undefined) {
                         if (tableRefArr.length == 1) {
@@ -705,107 +425,16 @@ function ReactMaterialGridComponent(props) {
                 }
 
                 if (item.onClickAction) {
-                    if(item.actionName == "GenerateObligation") {
+                    if (item.actionName == "GenerateObligation") {
                         setLoadingOne(!loadingOne);
                         item.onClickAction.execute();
                     } else {
                         item.onClickAction.execute();
                     }
-                } 
+                }
             }
         });
     });
-
-    // const handleCheckboxClick = (event) => {
-    //     debugger;
-
-    //     const selectedSection = $(event.target)
-    //         .next("tr")
-    //         .text()
-    //         .split(":", 2)
-    //         .pop()
-    //         .trim();
-    //     // $(event.target).next('tr').text().split(":").pop().trim()
-    //     // tableRef.current.dataManager.groupedData[1].value.trim()?\
-       
-    //     const groupedItems = [];	
-    //     for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {	
-    //         if (	
-    //             tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&	
-    //             tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1	
-    //         ) {	
-    //             groupedItems.push(tableRef.current.dataManager.columns[i].field);	
-    //         }	
-    //     }	
-    //     console.log(groupedItems);
-
-    //     const tableRefArr = [];
-
-        // $('input[type=checkbox]').change(function(){
-        //     // if is checked
-        //     if(this.checked){
-        //         // check all children
-        //         var lenchk = $(this).closest('input').find(':checkbox');
-        //         var lenchkChecked = $(this).closest('input').find(':checkbox:checked');
-        
-        //         //if all siblings are checked, check its parent checkbox
-        //         if (lenchk.length == lenchkChecked.length) {
-        //             tableRef.current.dataManager.data.filter((item, index) => {	
-        //                 if (item[groupedItems[index]] !== undefined) {	
-        //                     item.checked = true;	
-        //                     item.tableData.checked = true;	
-        //                     tableRefArr.push(item.RuleAutoID);	
-        //                 }	
-        //             });
-        //             $(this).closest('input').siblings().find(':checkbox').prop('checked', true);
-        //             $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').addClass('PrivateSwitchBase-checked-19 Mui-checked');
-        //             $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z");
-        //         }else{
-        //             $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', true);
-        //         }
-        //     } else {
-        //         // uncheck all children
-        //         tableRef.current.dataManager.data.filter(item => {	
-        //             if (item[groupedItems[index]] !== undefined) {	
-        //                 item.checked = false;	
-        //                 item.tableData.checked = false;	
-        //             }
-        //         });
-        //         $(this).closest('.groupHeader').siblings().find(':checkbox').prop('checked', false);
-        //         $(this).closest('input').siblings().find(':checkbox').prop('checked', false);
-        //         $(this).parent('.groupHeader').children().find('.groupCheck').prop('checked', false);
-        //         $(this).parents('.groupHeader').find('.groupCheck').prop('checked', false);
-        //         $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root').removeClass('PrivateSwitchBase-checked-19 Mui-checked')
-        //         $(this).parent('.groupHeader').children().find('span.MuiCheckbox-root svg path').attr("d", "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z");
-        //     }
-        // });
-       
-        // if (props.Table_Ref.status === "available" && data.length != undefined) {
-        //     props.Table_Ref.setValue(
-        //         tableRef.current.dataManager.groupedData.map(obj => JSON.parse(obj.RuleAutoID)).join(",")
-        //     );
-        // }
-        // if (props.Table_Ref.status === "available" && tableRefArr.length != undefined) {
-        //     if (tableRefArr.length == 1) {
-        //         props.Table_Ref.setValue(JSON.stringify(JSON.parse(tableRefArr)));
-        //     } else {
-        //         props.Table_Ref.setValue(tableRefArr.join(","));
-        //     }
-        // }
-    //};
-
-    // const customRow = rowData => (
-    //     <div className="groupHeader">
-    //         <input
-    //             data-val={rowData}
-    //             type="checkbox"
-    //             className="groupCheck"
-    //             onClick={event => handleCheckboxClick(event)}
-    //         />
-    //         {/* <MTableGroupRow {...rowData} /> */}
-    //         {/* <CustomGroupRow {...rowData} /> */}
-    //     </div>
-    // );
 
     return (
         <div className="App">
@@ -813,14 +442,91 @@ function ReactMaterialGridComponent(props) {
             {/* : */}
             <MaterialTable
                 tableRef={tableRef}
-                columns={columnData}
-                data={rows}
+                columns={props.columnData}
+                data={props.rowData}
                 isLoading={loadingOne ?? <CircularProgress />}
                 actions={topBarActions}
-                //onSelectionChange={selectedRows => console.log("selectedRows", selectedRows)}
-                // components={{
-                //     GroupRow: rowData => customRow(rowData)
-                // }}
+                components={{
+                    Header: props => (
+                        <>
+                            <button
+                                className="scrollButtonL backField"
+                                onClick={() => {
+                                    const myDivs = document.getElementsByClassName("MuiTableCell-head");
+                                    const myDivRowCells = document.getElementsByClassName("MuiTableCell-body");
+
+                                    for (let i = 0; i < myDivs.length - 11; i++) {
+                                        if (i === myDivs.length - 1) {
+                                            return;
+                                        }
+                                        if (myDivs[i].style.display === "none") {
+                                            myDivs[i].style.display = "table-cell";
+                                        } else {
+                                            myDivs[i].style.display = "none";
+                                        }
+                                    }
+
+                                    for (let j = 0; j < rows.length + 2; j++) {
+                                        const tableRow = document.getElementsByClassName("MuiTableRow-root")[j];
+                                        const tableCell = tableRow.getElementsByClassName("MuiTableCell-body");
+
+                                        for (let k = 0; k < tableCell.length - 11; k++) {
+                                            if (k === tableCell.length - 1) {
+                                                return;
+                                            }
+                                            if (tableCell[k].style.display === "none") {
+                                                tableCell[k].style.display = "table-cell";
+                                            } else {
+                                                tableCell[k].style.display = "none";
+                                            }
+                                        }
+                                    }
+
+                                    document.querySelector(".scrollButtonL").style.display = "none";
+                                    document.querySelector(".scrollButtonR").style.display = "block";
+                                }}
+                            ></button>
+                            <MTableHeader {...props} />
+                            <button
+                                className="scrollButtonR nextField"
+                                // data-attr={JSON.stringify(props.columns)}
+                                onClick={() => {
+                                    const myDivs = document.getElementsByClassName("MuiTableCell-head");
+                                    const myDivRowCells = document.getElementsByClassName("MuiTableCell-body");
+
+                                    for (let i = 0; i < myDivs.length - 11; i++) {
+                                        if (i === myDivs.length - 1) {
+                                            return;
+                                        }
+                                        if (myDivs[i].style.display === "none") {
+                                            myDivs[i].style.display = "table-cell";
+                                        } else {
+                                            myDivs[i].style.display = "none";
+                                        }
+                                    }
+
+                                    for (let j = 0; j < rows.length + 2; j++) {
+                                        const tableRow = document.getElementsByClassName("MuiTableRow-root")[j];
+                                        const tableCell = tableRow.getElementsByClassName("MuiTableCell-body");
+
+                                        for (let k = 0; k < tableCell.length - 11; k++) {
+                                            if (k === tableCell.length - 1) {
+                                                return;
+                                            }
+                                            if (tableCell[k].style.display === "none") {
+                                                tableCell[k].style.display = "table-cell";
+                                            } else {
+                                                tableCell[k].style.display = "none";
+                                            }
+                                        }
+                                    }
+                                    document.querySelector(".scrollButtonL").style.display = "block";
+                                    document.querySelector(".scrollButtonR").style.display = "none";
+                                }}
+                            ></button>
+                        </>
+                    )
+                }}
                 options={{
                     showEmptyDataSourceMessage: loadingOne ?? <CircularProgress />,
                     minBodyHeight: 560,
@@ -838,7 +544,7 @@ function ReactMaterialGridComponent(props) {
                     paginationPosition: props.paginationPosition,
                     pageSizeOptions: [5, 10, 20, 25, 50, 100],
                     pageSize: props.isPageSize,
-                    showSelectAllCheckbox: props.isSelectAllCheckbox.value,	
+                    showSelectAllCheckbox: props.isSelectAllCheckbox.value,
                     selection: props.isSelection.value,
                     paginationType: "stepped",
                     showFirstLastPageButtons: true,
@@ -852,19 +558,19 @@ function ReactMaterialGridComponent(props) {
                     //  },
                     //  exportCsv: (data, columns) =>  exportCsv(data, columns),
                     //  exportPdf: (data, columns) =>  exportCsv(data, columns),
-                     exportMenu: [
+                    exportMenu: [
                         {
-                          label: "Export PDF",
-                          //// You can do whatever you wish in this function. We provide the
-                          //// raw table columns and table data for you to modify, if needed.
-                          // exportFunc: (cols, datas) => console.log({ cols, datas })
-                          exportFunc: (data, columns) => exportPdf(data, columns, tableTitle),
+                            label: "Export PDF",
+                            //// You can do whatever you wish in this function. We provide the
+                            //// raw table columns and table data for you to modify, if needed.
+                            // exportFunc: (cols, datas) => console.log({ cols, datas })
+                            exportFunc: (data, columns) => exportPdf(data, columns, tableTitle)
                         },
                         {
-                          label: "Export CSV",
-                          exportFunc: (data, columns) => exportCsv(data, columns, tableTitle),
-                        },
-                      ],
+                            label: "Export CSV",
+                            exportFunc: (data, columns) => exportCsv(data, columns, tableTitle)
+                        }
+                    ],
                     // exportCsv: (tableColumns, tableData) => exportCsv(tableColumns, tableData),
                     // exportPdf: (tableColumns, tableData) => exportPdf(tableColumns, tableData),
 
