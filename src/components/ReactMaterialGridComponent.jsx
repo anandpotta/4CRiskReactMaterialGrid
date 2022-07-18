@@ -76,15 +76,9 @@ function ReactMaterialGridComponent(props) {
     const topBarActions = [];
 
     useEffect(() => {
-        debugger;
+        // debugger;
         setColumnData(props.columnData);
     }, [props.columnData]);
-
-    useEffect(() => {
-        if (document.querySelector(".scrollButtonL")) {
-            document.querySelector(".scrollButtonL").style.display = "none";
-        }
-    });
 
     useEffect(() => {
         setLoadingOne(!loadingOne);
@@ -446,90 +440,9 @@ function ReactMaterialGridComponent(props) {
                 data={props.rowData}
                 isLoading={loadingOne ?? <CircularProgress />}
                 actions={topBarActions}
-                components={{
-                    Header: props => (
-                        <>
-                            <button
-                                className="scrollButtonL backField"
-                                onClick={() => {
-                                    const myDivs = document.getElementsByClassName("MuiTableCell-head");
-                                    const myDivRowCells = document.getElementsByClassName("MuiTableCell-body");
-
-                                    for (let i = 0; i < myDivs.length - 11; i++) {
-                                        if (i === myDivs.length - 1) {
-                                            return;
-                                        }
-                                        if (myDivs[i].style.display === "none") {
-                                            myDivs[i].style.display = "table-cell";
-                                        } else {
-                                            myDivs[i].style.display = "none";
-                                        }
-                                    }
-
-                                    for (let j = 0; j < rows.length + 2; j++) {
-                                        const tableRow = document.getElementsByClassName("MuiTableRow-root")[j];
-                                        const tableCell = tableRow.getElementsByClassName("MuiTableCell-body");
-
-                                        for (let k = 0; k < tableCell.length - 11; k++) {
-                                            if (k === tableCell.length - 1) {
-                                                return;
-                                            }
-                                            if (tableCell[k].style.display === "none") {
-                                                tableCell[k].style.display = "table-cell";
-                                            } else {
-                                                tableCell[k].style.display = "none";
-                                            }
-                                        }
-                                    }
-
-                                    document.querySelector(".scrollButtonL").style.display = "none";
-                                    document.querySelector(".scrollButtonR").style.display = "block";
-                                }}
-                            ></button>
-                            <MTableHeader {...props} />
-                            <button
-                                className="scrollButtonR nextField"
-                                // data-attr={JSON.stringify(props.columns)}
-                                onClick={() => {
-                                    const myDivs = document.getElementsByClassName("MuiTableCell-head");
-                                    const myDivRowCells = document.getElementsByClassName("MuiTableCell-body");
-
-                                    for (let i = 0; i < myDivs.length - 11; i++) {
-                                        if (i === myDivs.length - 1) {
-                                            return;
-                                        }
-                                        if (myDivs[i].style.display === "none") {
-                                            myDivs[i].style.display = "table-cell";
-                                        } else {
-                                            myDivs[i].style.display = "none";
-                                        }
-                                    }
-
-                                    for (let j = 0; j < rows.length + 2; j++) {
-                                        const tableRow = document.getElementsByClassName("MuiTableRow-root")[j];
-                                        const tableCell = tableRow.getElementsByClassName("MuiTableCell-body");
-
-                                        for (let k = 0; k < tableCell.length - 11; k++) {
-                                            if (k === tableCell.length - 1) {
-                                                return;
-                                            }
-                                            if (tableCell[k].style.display === "none") {
-                                                tableCell[k].style.display = "table-cell";
-                                            } else {
-                                                tableCell[k].style.display = "none";
-                                            }
-                                        }
-                                    }
-                                    document.querySelector(".scrollButtonL").style.display = "block";
-                                    document.querySelector(".scrollButtonR").style.display = "none";
-                                }}
-                            ></button>
-                        </>
-                    )
-                }}
                 options={{
                     showEmptyDataSourceMessage: loadingOne ?? <CircularProgress />,
-                    minBodyHeight: 560,
+                    // minBodyHeight: 560,
                     maxBodyHeight: 1200,
                     maxBodyWidth: 700,
                     tableLayout: "auto",
@@ -548,6 +461,8 @@ function ReactMaterialGridComponent(props) {
                     selection: props.isSelection.value,
                     paginationType: "stepped",
                     showFirstLastPageButtons: true,
+                    emptyRowsWhenPaging: false,
+                    doubleHorizontalScroll: true,
 
                     //exportButton: props.topbarExportActions,
                     exportAllData: true,
