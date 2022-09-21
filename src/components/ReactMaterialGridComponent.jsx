@@ -89,9 +89,14 @@ function ReactMaterialGridComponent(props) {
     const csvData = [];
     let deleteSet = [];
     let groupedData;
-    let dataSet = [];
+
     const exportCsv = (columns, data) => {
         debugger;
+
+        let dataSet = [];
+
+        var tableTitleUpdated = tableTitle;
+        tableTitleUpdated = tableTitleUpdated.slice(0, 29);
 
         if (tableRef.current.dataManager.grouped != true) {
             const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
@@ -101,10 +106,9 @@ function ReactMaterialGridComponent(props) {
         } else {
             const groupedData = tableRef.current.dataManager.groupedData;
             function csvData(obj) {
+                debugger;
                 if (obj.data.length > 0) {
-                    // obj.data.forEach(item => {
-                    //     delete item.Actions && delete item.RuleAutoID && delete item.tableData;
-                    // });
+                    // obj.data.map(({tableData, undefined, RuleAutoID, Actions, ...rest}) => rest);
                     const groups = obj.path.map((e, idx) => ({ [`Group-${idx}`]: e }));
                     dataSet = [...dataSet, ...groups, ...obj.data];
                 }
@@ -120,7 +124,7 @@ function ReactMaterialGridComponent(props) {
         debugger;
         const ws = XLSX.utils.json_to_sheet(dataSet);
         const workBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workBook, ws, tableTitle);
+        XLSX.utils.book_append_sheet(workBook, ws, tableTitleUpdated);
 
         //create and downloading workbook
 
@@ -260,6 +264,7 @@ function ReactMaterialGridComponent(props) {
     };
 
     const exportPdf = (columns, data) => {
+        let dataSet = [];
         debugger;
         data.forEach(item => {
             delete item.Actions && delete item.tableData;
@@ -440,6 +445,29 @@ function ReactMaterialGridComponent(props) {
                 data={props.rowData}
                 isLoading={loadingOne ?? <CircularProgress />}
                 actions={topBarActions}
+                // components={{
+                //     Pagination: props => (
+                //         <TablePagination
+                //             {...props}
+                //             rowsPerPageOptions={[5, 10, 20, 30]}
+                //             rowsPerPage={this.state.numberRowPerPage}
+                //             count={this.state.totalRow}
+                //             page={firstLoad ? this.state.pageNumber : this.state.pageNumber - 1}
+                //             onChangePage={(e, page) => this.handleChangePage(page + 1)}
+                //             onChangeRowsPerPage={event => {
+                //                 props.onChangeRowsPerPage(event);
+                //                 this.handleChangeRowPerPage(event.target.value);
+                //             }}
+                //         />
+                //     )
+                // }}
+                // onRowClick={(event, rowData) => {
+                //     // Copy row data and set checked state
+                //     debugger;
+                //     console.log(props);
+                //     props.RowID.setValue(JSON.parse(rowData.RuleAutoID));
+                //     props.onRowClick(event, rowData);
+                // }}
                 options={{
                     showEmptyDataSourceMessage: loadingOne ?? <CircularProgress />,
                     // minBodyHeight: 560,
