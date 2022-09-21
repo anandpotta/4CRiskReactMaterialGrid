@@ -1,14 +1,11 @@
 /* eslint-disable prettier/prettier */
 import React, { Component, createElement } from "react";
-import { Button } from 'react-bootstrap';
 import { Menu, MenuItem } from "@material-ui/core";
 
 import "./ui/ReactMaterialGrid.css";
 
 import ReactMaterialGridComponent from './components/ReactMaterialGridComponent';
 import CircularProgress from "@material-ui/core/CircularProgress";
-// import ReactReadMoreReadLess from "react-read-more-read-less";
-import reactElementToJSXString from 'react-element-to-jsx-string';
 
 export default class ReactMaterialGrid extends Component {
     constructor(props) {
@@ -19,6 +16,7 @@ export default class ReactMaterialGrid extends Component {
         this.getTableTitle = this.getTableTitle.bind(this);
 
         this.onClickGenerateObligation = this.onClickGenerateObligation.bind(this);
+        this.onRowClick = this.onRowClick.bind(this);
     }
 
 
@@ -39,20 +37,23 @@ export default class ReactMaterialGrid extends Component {
                             tableHeaderData.push(
                                 {
                                     title: this.props.columns[i].header.value,
-                                    field: this.props.columns[i].columnHeader.replace(/ /g, ""),
+                                    // field: this.props.columns[i].header.value.replace(/ /g, ""),
+                                    field: this.props.columns[i].header.value && this.props.columns[i].header.value.replace(/ /g, ""),
                                     hidden: this.props.columns[i].canHide.value,
-                                    hiddenByColumnsButton: false,
+                                    hiddenByColumnsButton: this.props.columns[i].header.value === undefined || this.props.columns[i].canHide.value || this.props.columns[i].canHideAtColumnButton.value,
                                     export: !this.props.columns[i].canHide.value && this.props.columns[i].canExport.value,
                                     filtering: (this.props.columns[i].header.value !== "Actions"),
                                     customHeader: true,
+                                    grouping: this.props.columns[i].grouping.value,
+                                    draggable: this.props.columns[i].draggable.value,
                                     defaultGroupOrder: (groupByArr[0] !== '' && groupByArr[0] === 'Default') ? this.props.columns[i].groupOrder : groupByArr.indexOf(this.props.columns[i].columnHeader.replace(/ /g, "")),
                                     cellStyle: {
                                         minWidth: this.props.columns[i].columnMinWidth,
-                                        maxWidth: this.props.columns[i].columnMaxWidth
+                                        maxWidth: this.props.columns[i].columnMaxWidth ? this.props.columns[i].columnMaxWidth : 200
                                     },
                                     headerStyle: {
                                         minWidth: this.props.columns[i].columnMinWidth,
-                                        maxWidth: this.props.columns[i].columnMaxWidth
+                                        maxWidth: this.props.columns[i].columnMaxWidth ? this.props.columns[i].columnMaxWidth : 200
                                     }
                                 }
                             )
@@ -65,15 +66,17 @@ export default class ReactMaterialGrid extends Component {
                                     export: !this.props.columns[i].canHide.value && this.props.columns[i].canExport.value,
                                     filtering: (this.props.columns[i].columnHeader !== "Actions"),
                                     customHeader: false,
-                                    hiddenByColumnsButton: false,
+                                    hiddenByColumnsButton: this.props.columns[i].header.value === undefined || this.props.columns[i].canHide.value || this.props.columns[i].canHideAtColumnButton.value,
+                                    grouping: this.props.columns[i].grouping.value,
+                                    draggable: this.props.columns[i].draggable.value,
                                     defaultGroupOrder: (groupByArr[0] !== '' && groupByArr[0] === 'Default') ? this.props.columns[i].groupOrder : groupByArr.indexOf(this.props.columns[i].columnHeader.replace(/ /g, "")),
                                     cellStyle: {
                                         minWidth: this.props.columns[i].columnMinWidth,
-                                        maxWidth: this.props.columns[i].columnMaxWidth.value
+                                        maxWidth: this.props.columns[i].columnMaxWidth ? this.props.columns[i].columnMaxWidth : 200
                                     },
                                     headerStyle: {
                                         minWidth: this.props.columns[i].columnMinWidth,
-                                        maxWidth: this.props.columns[i].columnMaxWidth.value
+                                        maxWidth: this.props.columns[i].columnMaxWidth ? this.props.columns[i].columnMaxWidth : 200
                                     }
                                     // render: rowData => {
                                     //     debugger;
@@ -120,21 +123,18 @@ export default class ReactMaterialGrid extends Component {
                 for (var i = 0; i < this.props.datasource.items.length; i++) {
                     for (var j = 0; j < NUM_COLUMNS; j++) {
                         if (this.props.columns[j].showContentAs === "attribute") {
-                            columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] =
-                            this.props.columns[j].attribute && this.props.columns[j].attribute.get(this.props.datasource.items[i]).value 
-                            ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
-                            // this.props.columns[j].attribute && (this.props.columns[j].attribute.get(this.props.datasource.items[i]).value.length >= 400)
-                            // ? <ReactReadMoreReadLess
-                            //     charLimit={400}
-                            //     readMoreText={"see more..."}
-                            //     readLessText={"see less."}
-                            //     // readMoreText={"Read more ▼"}
-                            //     // readLessText={"Read less ▲"}
-                            //     readMoreClassName="read-more-less--more"
-                            //     readLessClassName="read-more-less--less"
-                            // >{this.props.columns[j].attribute.get(this.props.datasource.items[i]).value}</ReactReadMoreReadLess>
-                            // : this.props.columns[j].attribute && (this.props.columns[j].attribute.get(this.props.datasource.items[i]).value.length < 400) ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
+                            if(this.props.columns[j].header && this.props.columns[j].header.status === "available" && this.props.columns[j].header.value !== ""){
+                                columnData[this.props.columns[j].header.value && this.props.columns[j].header.value.replace(/ /g, "")] =
+                                this.props.columns[j].attribute && this.props.columns[j].attribute.get(this.props.datasource.items[i]).value 
+                                ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
+                            }else{
+                                columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] =
+                                this.props.columns[j].attribute && this.props.columns[j].attribute.get(this.props.datasource.items[i]).value 
+                                ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
+                            }
+                            
                         } else if (this.props.columns[j].showContentAs === "customContent") {
+                            console.log('actions', this.props.columns[j].content.get(this.props.datasource.items[i]));
                             columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] = this.props.columns[j].content ? this.props.columns[j].content.get(this.props.datasource.items[i]) : ""
                         }
 
@@ -153,6 +153,12 @@ export default class ReactMaterialGrid extends Component {
                 title = this.props.tableTitle.value;
             }
         return title;
+    }
+
+    onRowClick(event, rowData){
+        if (this.props.onRowClickAction) {
+            this.props.onRowClickAction.execute();
+        }
     }
 
     onClickGenerateObligation(tableRef) {
@@ -215,6 +221,7 @@ export default class ReactMaterialGrid extends Component {
                 {/* { this.loading ?? <CircularProgress />} */}
                 <ReactMaterialGridComponent
                     onClickGenerateObligation={this.onClickGenerateObligation}
+                    onRowClick = {this.onRowClick}
 
                     columnData={inputHeaderDataToRender}
                     rowData={inputDataToRender}
@@ -236,6 +243,7 @@ export default class ReactMaterialGrid extends Component {
                     Groupby_Tag={this.props.Groupby_Tag}
                     TagLevel={this.props.TagLevel}
                     Table_Ref={this.props.Table_Ref}
+                    RowID={this.props.RowID}
                     actionProps={actionProps}
                 />
             </div>
