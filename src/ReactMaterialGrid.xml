@@ -67,12 +67,27 @@
                            <caption>Caption</caption>
                            <description/>
                         </property>
+                        <property key="draggable" type="expression" defaultValue="true" required="false">
+                           <caption>Column Drag and Drop</caption>
+                           <description />
+                           <returnType type="Boolean"/>
+                        </property>
+                        <property key="grouping" type="expression" defaultValue="true" required="false">
+                           <caption>Grouping Column</caption>
+                           <description />
+                           <returnType type="Boolean"/>
+                        </property>
                         <property key="groupOrder" type="integer" defaultValue="-1">
                            <caption>Set Default Group Order</caption>
                            <description />
                         </property>
                         <property key="canHide" type="expression" defaultValue="false" required="false">
-                           <caption>Visible</caption>
+                           <caption>Hidden Column</caption>
+                           <description/>
+                           <returnType type="Boolean"/>
+                        </property>
+                        <property key="canHideAtColumnButton" type="expression" defaultValue="false" required="false">
+                           <caption>Hidden Column at ColumnButton</caption>
                            <description/>
                            <returnType type="Boolean"/>
                         </property>
@@ -85,7 +100,7 @@
                            <caption>Column Min Width</caption>
                            <description />
                         </property>
-                        <property key="columnMaxWidth" type="integer" defaultValue="20">
+                        <property key="columnMaxWidth" type="integer" defaultValue="200">
                            <caption>Column Max Width</caption>
                            <description />
                         </property>
@@ -93,11 +108,11 @@
                   </propertyGroup>
                </properties>
             </property>
-            <property key="pageSize" type="integer" defaultValue="20">
+             <!-- <property key="pageSize" type="integer" defaultValue="20">
                <caption>Page Size</caption>
                <description />
             </property>
-             <!-- <property key="dataAssociation" type="entity" required="true" isPath="yes" pathType="reference" allowNonPersistableEntities="true">
+            <property key="dataAssociation" type="entity" required="true" isPath="yes" pathType="reference" allowNonPersistableEntities="true">
                                     <caption>Entity Type</caption>
                                     <category>Search</category>
                                     <description> </description> 
@@ -244,7 +259,7 @@
          </propertyGroup>
       </propertyGroup>
       <propertyGroup caption="Action">
-         <property key="onRowClickAction" type="action" dataSource="datasource">
+         <property key="onRowClickAction" type="action"  required="false">
             <caption>On row click</caption>
             <description>Action to be performed when row is clicked</description>
          </property>
@@ -296,6 +311,13 @@
          </property>
          <property key="Table_Ref" type="attribute" required="false">
             <caption>Table Info</caption>
+            <description>Store the props from onclick events</description>
+            <attributeTypes>
+               <attributeType name="String"/>
+            </attributeTypes>
+         </property>
+         <property key="RowID" type="attribute" required="false">
+            <caption>RowID</caption>
             <description>Store the props from onclick events</description>
             <attributeTypes>
                <attributeType name="String"/>
