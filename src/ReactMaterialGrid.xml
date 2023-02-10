@@ -13,15 +13,18 @@
                <caption>Data source</caption>
                <description />
             </property>
-            <property key="tableTitle" type="attribute" required="false">
-               <caption>Title</caption>
+
+            <property key="tableTitle" type="textTemplate" required="false">
+                    <caption>Title</caption>
                <description>String attribute where the title is stored for the Table. Should be unique.</description>
-               <attributeTypes>
-                  <attributeType name="String"/>
-                  <attributeType name="Integer"/>
-                  <attributeType name="DateTime"/>
-                  <attributeType name="Enum"/>
-               </attributeTypes>
+                    <translations>
+                        <translation lang="en_US">Title</translation>
+                        <translation lang="nl_NL">Title</translation>
+                    </translations>
+                </property>
+            <property key="gridSource" type="string" defaultValue="Rule(s)" required="false">
+               <caption>Grid Soruce</caption>
+               <description>String attribute where the Grid Source to be added for the count.</description>
             </property>
          </propertyGroup>
 
