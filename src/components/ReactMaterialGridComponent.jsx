@@ -69,6 +69,7 @@ import "jspdf-autotable";
 function ReactMaterialGridComponent(props) {
     const tableRef = useRef();
     const tableTitle = props.tableTitle;
+    const gridSource = props.gridSource;
     const [columnData, setColumnData] = useState(props.columnData);
     const [rows, setRows] = useState(props.rowData);
     const [loadingOne, setLoadingOne] = useState(false);
@@ -118,7 +119,7 @@ function ReactMaterialGridComponent(props) {
                 }
             }
             groupedData.forEach(csvData);
-            console.log("dataSet", dataSet);
+            // console.log("dataSet", dataSet);
         }
 
         debugger;
@@ -139,7 +140,7 @@ function ReactMaterialGridComponent(props) {
         const strSplit = [];
         ws["!cols"] = [];
         ws["!merges"] = [];
-        console.log("row", row);
+        // console.log("row", row);
 
         for (var R = range.s.r + 1; R <= range.e.r - 1; ++R) {
             for (C = range.s.c; C <= range.e.c; ++C) {
@@ -147,7 +148,7 @@ function ReactMaterialGridComponent(props) {
 
                 /* `.t == "n"` for number cells */
                 var ref = XLSX.utils.encode_cell({ c: C, r: R });
-                console.log("ws[ref]", ws[ref]);
+                // console.log("ws[ref]", ws[ref]);
                 //console.log('default',  ws[`${XLSX.utils.encode_col(C)}0`].v);
 
                 /* assign the `.z` number format */
@@ -169,10 +170,10 @@ function ReactMaterialGridComponent(props) {
                 }
                 const str = ws[`${XLSX.utils.encode_col(C)}1`].v;
                 const substring = "Group-";
-                console.log("substring", str.includes(substring));
+                // console.log("substring", str.includes(substring));
 
                 if (str.includes(substring) && ws[ref].v !== "") {
-                    console.log("how many times", str.includes(substring));
+                    // console.log("how many times", str.includes(substring));
                     // wscols.push({width: 5});
                     // ws['!cols'] = wscols;
 
@@ -197,19 +198,19 @@ function ReactMaterialGridComponent(props) {
                         }
                     };
 
-                    console.log("ws[ref]----------------", ws[ref]);
-                    console.log("ws[ref] val----------------", ws[ref].v);
-                    console.log("All cols", C);
-                    console.log("All rows", R);
-                    console.log("All cols range start", range.s.c);
-                    console.log("All cols range end", range.e.c);
-                    console.log("All row range start", range.s.r);
-                    console.log("All rows range end", range.e.r);
+                    // console.log("ws[ref]----------------", ws[ref]);
+                    // console.log("ws[ref] val----------------", ws[ref].v);
+                    // console.log("All cols", C);
+                    // console.log("All rows", R);
+                    // console.log("All cols range start", range.s.c);
+                    // console.log("All cols range end", range.e.c);
+                    // console.log("All row range start", range.s.r);
+                    // console.log("All rows range end", range.e.r);
                     merge.push({ s: { r: R, c: C }, e: { r: R, c: range.e.c } });
-                    console.log("merge", merge);
+                    // console.log("merge", merge);
                     ws["!merges"] = merge;
                 }
-                console.log("header key", ws[`${XLSX.utils.encode_col(C)}1`].v);
+                // console.log("header key", ws[`${XLSX.utils.encode_col(C)}1`].v);
                 wscols.push({ width: range.e.c * 2 });
             }
         }
@@ -221,7 +222,7 @@ function ReactMaterialGridComponent(props) {
             if (str.includes(substring)) {
                 groupCols.push({ width: 2 });
                 const alphabet = [...Array(range.e.c + 1)].map((e, i) => (i + 10).toString(36).toUpperCase() + "1");
-                console.log("alphabet for first two", alphabet[col]);
+                // console.log("alphabet for first two", alphabet[col]);
                 ws[alphabet[col]].s = {
                     font: {
                         color: { rgb: "FFFFFF" }
@@ -235,7 +236,7 @@ function ReactMaterialGridComponent(props) {
 
             if (!str.includes(substring)) {
                 const alphabet = [...Array(range.e.c + 1)].map((e, i) => (i + 10).toString(36).toUpperCase() + "1");
-                console.log("alphabet", alphabet[col]);
+                // console.log("alphabet", alphabet[col]);
                 ws[alphabet[col]].s = {
                     font: {
                         size: "18",
@@ -249,7 +250,7 @@ function ReactMaterialGridComponent(props) {
                 };
             }
         }
-        console.log("ws[cols]", wscols);
+        // console.log("ws[cols]", wscols);
         ws["!cols"] = [...groupCols, ...wscols];
 
         //XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
@@ -299,7 +300,7 @@ function ReactMaterialGridComponent(props) {
                 }
             }
             groupedData.forEach(csvData);
-            console.log(dataSet);
+            // console.log(dataSet);
         }
         // rows = rows.map(rowData => rowData.includes('Rule') && typeof(rowData) ? rowData.props.children)
         const doc = new jsPDF("landscape");
@@ -358,9 +359,9 @@ function ReactMaterialGridComponent(props) {
             tooltip: item.actionName,
             hidden: !item.hidden.value,
             onClick: (evt, data) => {
-                console.log("data-----", data);
-                console.log("TableRef:", tableRef.current);
-                debugger;
+                // console.log("data-----", data);
+                // console.log("TableRef:", tableRef.current);
+                // debugger;
                 const tableRefArr = [];
                 deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.tableData.checked === true);
 
@@ -425,7 +426,7 @@ function ReactMaterialGridComponent(props) {
 
                 if (item.onClickAction) {
                     if (item.actionName == "GenerateObligation") {
-                        setLoadingOne(!loadingOne);
+                        // setLoadingOne(!loadingOne);
                         item.onClickAction.execute();
                     } else {
                         item.onClickAction.execute();
@@ -437,37 +438,12 @@ function ReactMaterialGridComponent(props) {
 
     return (
         <div className="App">
-            {/* {loadingOne ? <CircularProgress /> */}
-            {/* : */}
             <MaterialTable
                 tableRef={tableRef}
                 columns={props.columnData}
                 data={props.rowData}
                 isLoading={loadingOne ?? <CircularProgress />}
                 actions={topBarActions}
-                // components={{
-                //     Pagination: props => (
-                //         <TablePagination
-                //             {...props}
-                //             rowsPerPageOptions={[5, 10, 20, 30]}
-                //             rowsPerPage={this.state.numberRowPerPage}
-                //             count={this.state.totalRow}
-                //             page={firstLoad ? this.state.pageNumber : this.state.pageNumber - 1}
-                //             onChangePage={(e, page) => this.handleChangePage(page + 1)}
-                //             onChangeRowsPerPage={event => {
-                //                 props.onChangeRowsPerPage(event);
-                //                 this.handleChangeRowPerPage(event.target.value);
-                //             }}
-                //         />
-                //     )
-                // }}
-                // onRowClick={(event, rowData) => {
-                //     // Copy row data and set checked state
-                //     debugger;
-                //     console.log(props);
-                //     props.RowID.setValue(JSON.parse(rowData.RuleAutoID));
-                //     props.onRowClick(event, rowData);
-                // }}
                 options={{
                     showEmptyDataSourceMessage: loadingOne ?? <CircularProgress />,
                     // minBodyHeight: 560,
@@ -491,16 +467,8 @@ function ReactMaterialGridComponent(props) {
                     showFirstLastPageButtons: true,
                     emptyRowsWhenPaging: false,
                     doubleHorizontalScroll: true,
-
-                    //exportButton: props.topbarExportActions,
                     exportAllData: true,
                     exportFileName: tableTitle,
-                    // exportButton: {
-                    //     csv: true,
-                    //     pdf: true,
-                    //  },
-                    //  exportCsv: (data, columns) =>  exportCsv(data, columns),
-                    //  exportPdf: (data, columns) =>  exportCsv(data, columns),
                     exportMenu: [
                         {
                             label: "Export PDF",
@@ -514,8 +482,6 @@ function ReactMaterialGridComponent(props) {
                             exportFunc: (data, columns) => exportCsv(data, columns, tableTitle)
                         }
                     ],
-                    // exportCsv: (tableColumns, tableData) => exportCsv(tableColumns, tableData),
-                    // exportPdf: (tableColumns, tableData) => exportPdf(tableColumns, tableData),
 
                     searchFieldAlignment: "left",
                     searchAutoFocus: true,
@@ -525,9 +491,8 @@ function ReactMaterialGridComponent(props) {
                     actionsColumnIndex: -1,
                     showTextRowsSelected: true
                 }}
-                title={props.rowData.length + ` Rules`}
+                title={props.rowData.length + gridSource}
             />
-            {/* } */}
         </div>
     );
 }
