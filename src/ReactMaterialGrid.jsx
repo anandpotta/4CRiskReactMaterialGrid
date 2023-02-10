@@ -14,7 +14,6 @@ export default class ReactMaterialGrid extends Component {
         this.getHeaderJSONVal = this.getHeaderJSONVal.bind(this);
         this.getJSONVal = this.getJSONVal.bind(this);
         this.getTableTitle = this.getTableTitle.bind(this);
-
         this.onClickGenerateObligation = this.onClickGenerateObligation.bind(this);
         this.onRowClick = this.onRowClick.bind(this);
     }
@@ -41,7 +40,8 @@ export default class ReactMaterialGrid extends Component {
                                     field: this.props.columns[i].header.value && this.props.columns[i].header.value.replace(/ /g, ""),
                                     hidden: this.props.columns[i].canHide.value,
                                     hiddenByColumnsButton: this.props.columns[i].header.value === undefined || this.props.columns[i].canHide.value || this.props.columns[i].canHideAtColumnButton.value,
-                                    export: !this.props.columns[i].canHide.value && this.props.columns[i].canExport.value,
+                                    export: this.props.columns[i].canExport.value,
+                                    // export: !this.props.columns[i].canHide.value && this.props.columns[i].canExport.value,
                                     filtering: (this.props.columns[i].header.value !== "Actions"),
                                     customHeader: true,
                                     grouping: this.props.columns[i].grouping.value,
@@ -63,7 +63,8 @@ export default class ReactMaterialGrid extends Component {
                                     title: this.props.columns[i].columnHeader,
                                     field: this.props.columns[i].columnHeader.replace(/ /g, ""),
                                     hidden: this.props.columns[i].canHide.value,
-                                    export: !this.props.columns[i].canHide.value && this.props.columns[i].canExport.value,
+                                    export: this.props.columns[i].canExport.value,
+                                    // export: !this.props.columns[i].canHide.value && this.props.columns[i].canExport.value,
                                     filtering: (this.props.columns[i].columnHeader !== "Actions"),
                                     customHeader: false,
                                     hiddenByColumnsButton: this.props.columns[i].header.value === undefined || this.props.columns[i].canHide.value || this.props.columns[i].canHideAtColumnButton.value,
@@ -78,29 +79,7 @@ export default class ReactMaterialGrid extends Component {
                                         minWidth: this.props.columns[i].columnMinWidth,
                                         maxWidth: this.props.columns[i].columnMaxWidth ? this.props.columns[i].columnMaxWidth : 200
                                     }
-                                    // render: rowData => {
-                                    //     debugger;
-                                    //     console.log('rowData----', rowData);  
-                                    // },
-                                    // customFilterAndSearch: (filterValue, row, columnDef) => {
-                                    //     debugger;
-                                    //     console.log(filterValue, row, columnDef, '-------------termRowData')
-                                    //     Object.keys(row).map(
-                                    //         item =>
-                                    //             (row[item] =
-                                    //                 typeof row[item] === "object" ? row[item].props && row[item].props.children : row[item])
-                                    //     );
-                                    //     delete row.Actions && delete row.tableData;
-                                    //     return row[columnDef.field].indexOf(filterValue) == -1;
-
-                                        // if(typeof(row[columnDef.field]) == 'object'){
-                                        //     return row[columnDef.field].props.children.indexOf(filterValue) != -1;
-                                        // }else{
-                                        //     return row[columnDef.field].indexOf(filterValue) != -1;
-                                        // }
-                                        // return row.findIndex(item => item.name.includes(term)) != -1;
-                                        // (rowData.name + ' ' + rowData.surname).indexOf(term) != -1
-                                    // }
+                                   
                                 }
                             )
                         }
@@ -112,7 +91,7 @@ export default class ReactMaterialGrid extends Component {
 
 
     getJSONVal() {
-        debugger;
+        // debugger;
 
         var tableData = [];
         const datasource = this.props.datasource;
@@ -123,23 +102,23 @@ export default class ReactMaterialGrid extends Component {
                 for (var i = 0; i < this.props.datasource.items.length; i++) {
                     for (var j = 0; j < NUM_COLUMNS; j++) {
                         if (this.props.columns[j].showContentAs === "attribute") {
-                            if(this.props.columns[j].header && this.props.columns[j].header.status === "available" && this.props.columns[j].header.value !== ""){
+                            if (this.props.columns[j].header && this.props.columns[j].header.status === "available" && this.props.columns[j].header.value !== "") {
                                 columnData[this.props.columns[j].header.value && this.props.columns[j].header.value.replace(/ /g, "")] =
-                                this.props.columns[j].attribute && this.props.columns[j].attribute.get(this.props.datasource.items[i]).value 
+                                this.props.columns[j].attribute && this.props.columns[j].attribute.get(this.props.datasource.items[i]).value
                                 ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
-                            }else{
+                            } else {
                                 columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] =
-                                this.props.columns[j].attribute && this.props.columns[j].attribute.get(this.props.datasource.items[i]).value 
+                                this.props.columns[j].attribute && this.props.columns[j].attribute.get(this.props.datasource.items[i]).value
                                 ? this.props.columns[j].attribute.get(this.props.datasource.items[i]).value : "";
                             }
-                            
+
                         } else if (this.props.columns[j].showContentAs === "customContent") {
-                            console.log('actions', this.props.columns[j].content.get(this.props.datasource.items[i]));
+                            // console.log('actions', this.props.columns[j].content.get(this.props.datasource.items[i]));
                             columnData[this.props.columns[j].columnHeader.replace(/ /g, "")] = this.props.columns[j].content ? this.props.columns[j].content.get(this.props.datasource.items[i]) : ""
                         }
 
                     }
-                    console.log(columnData);
+                    // console.log(columnData);
                     tableData.push(columnData);
                     columnData = {};
                 }
@@ -155,7 +134,7 @@ export default class ReactMaterialGrid extends Component {
         return title;
     }
 
-    onRowClick(event, rowData){
+    onRowClick(event, rowData) {
         if (this.props.onRowClickAction) {
             this.props.onRowClickAction.execute();
         }
@@ -226,6 +205,7 @@ export default class ReactMaterialGrid extends Component {
                     columnData={inputHeaderDataToRender}
                     rowData={inputDataToRender}
                     tableTitle={tableTitle}
+                    gridSource={this.props.gridSource}
                     canFilter={this.props.canFilter}
                     canSearch={this.props.canSearch}
                     canDraggable={this.props.canDraggable}
