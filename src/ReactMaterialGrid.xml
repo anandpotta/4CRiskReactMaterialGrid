@@ -205,6 +205,10 @@
                <caption>Add Column Filter</caption>
                <description />
             </property>
+            <property key="isRowEditable" type="boolean" required="true" defaultValue="false">
+               <caption>Is Row Editable</caption>
+               <description />
+            </property>
             <property key="canSearch" type="boolean" required="true" defaultValue="true">
                <caption>Add Grid Search</caption>
                <description />
