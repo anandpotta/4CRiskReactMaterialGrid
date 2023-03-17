@@ -340,11 +340,11 @@ function ReactMaterialGridComponent(props) {
             },
             pageBreak: "auto",
             didDrawPage: header,
-            drawHeaderRow: function(row, data) {
-                if (data.pageCount > 1) {
-                    return false;
-                }
-            }
+//             drawHeaderRow: function(row, data) {
+//                 if (data.pageCount > 1) {
+//                     return false;
+//                 }
+//             }
         });
 
         doc.save(tableTitle + ".pdf");
