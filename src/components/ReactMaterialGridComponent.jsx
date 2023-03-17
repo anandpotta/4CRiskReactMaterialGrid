@@ -445,6 +445,10 @@ function ReactMaterialGridComponent(props) {
                 isLoading={loadingOne ?? <CircularProgress />}
                 actions={topBarActions}
                 options={{
+                    rowStyle: x => ({
+                        color: Object.values(x)[Object.keys(x).length - 2] === true ? "#FF0000" : ""
+                    }),
+                         
                     showEmptyDataSourceMessage: loadingOne ?? <CircularProgress />,
                     // minBodyHeight: 560,
                     maxBodyHeight: 1200,
