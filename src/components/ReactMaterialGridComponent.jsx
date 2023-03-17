@@ -100,7 +100,8 @@ function ReactMaterialGridComponent(props) {
         tableTitleUpdated = tableTitleUpdated.slice(0, 29);
 
         if (tableRef.current.dataManager.grouped != true) {
-            const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
+            // const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
+            const columnNewData = columns.filter(column => column.hidden !== true);
             columnNewData.forEach(column => {
                 dataSet = data.filter(row => delete !row[column.field]);
             });
@@ -267,11 +268,17 @@ function ReactMaterialGridComponent(props) {
     const exportPdf = (columns, data) => {
         let dataSet = [];
         debugger;
-        data.forEach(item => {
-            delete item.Actions && delete item.tableData;
-        });
+        // data.forEach(item => {
+        //     delete item.tableData;
+        // });
+        
+        const columnNewData = columns.filter(column => column.hidden !== true);
+        
+        // data.forEach(item => {
+        //     delete item.Actions && delete item.tableData;
+        // });
 
-        const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
+        // const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
         let rowNewData;
         columnNewData.forEach(column => {
             rowNewData = data.filter(row => delete !row[column.field]);
@@ -289,7 +296,8 @@ function ReactMaterialGridComponent(props) {
             function csvData(obj) {
                 if (obj.data.length > 0) {
                     obj.data.forEach(item => {
-                        delete item.Actions && delete item.RuleAutoID && delete item.tableData;
+                        delete item.RuleAutoID
+                        // delete item.Actions && delete item.RuleAutoID && delete item.tableData;
                     });
                     const groups = obj.path.map((e, idx) => ({ [`Group-${idx}`]: e }));
                     dataSet = [...dataSet, ...groups, ...obj.data];
@@ -339,12 +347,12 @@ function ReactMaterialGridComponent(props) {
                 Rule: { cellWidth: "200" }
             },
             pageBreak: "auto",
-            didDrawPage: header,
-//             drawHeaderRow: function(row, data) {
-//                 if (data.pageCount > 1) {
-//                     return false;
-//                 }
-//             }
+            didDrawPage: header
+            // drawHeaderRow: function(row, data) {
+            //     if (data.pageCount > 1) {
+            //         return false;
+            //     }
+            // }
         });
 
         doc.save(tableTitle + ".pdf");
