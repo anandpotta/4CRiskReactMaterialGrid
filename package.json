@@ -6,7 +6,7 @@
   "author": "Anand Potta",
   "version": "1.0.0",
   "config": {
-    "projectPath": "C:/Users/anand/OneDrive/Documents/Mendix/SearchPortal-main/",
+    "projectPath": "../dist",
     "mendixHost": "http://localhost:8080",
     "developmentPort": "3000"
   },
