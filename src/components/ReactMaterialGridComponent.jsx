@@ -257,11 +257,19 @@ function ReactMaterialGridComponent(props) {
         //XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
         //XLSX.utils.book_append_sheet(workBook, ws, "xlxsdownload");
         //Buffer
-        XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
-        //Binary string
-        XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
-        //Download
-        XLSX.writeFile(workBook, tableTitle + ".xlsx");
+        try {
+            XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
+            //Binary string
+            XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
+            //Download
+            XLSX.writeFile(workBook, tableTitle + ".xlsx");
+            //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
+        } catch(err){
+            if(err){
+                console.log('error', err);
+                alert("The character limit for the Rule Text has been exceeded. Please reach out to your system administrator for assistance.");
+            }
+        }
         //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
     };
 
