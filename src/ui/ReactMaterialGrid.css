@@ -40,3 +40,7 @@
 .groupHeader > tr > td > button, .groupHeader > tr > td > button:hover, .groupHeader > tr > td > button:focus{
     margin-left: 43px;
 }
+
+.MuiFormControl-root{
+    width:100%;
+}
