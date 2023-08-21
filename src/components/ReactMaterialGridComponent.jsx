@@ -1,95 +1,222 @@
 import { createElement } from "react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-//import MaterialTable, { MTableAction, MTableBody, MTableGroupRow, MTableGroupbar } from "material-table";
-import MaterialTable, { MTableHeader } from "@material-table/core";
+import MaterialTable from "@material-table/core";
+
 import CircularProgress from "@material-ui/core/CircularProgress";
-
-//import {draggable} from 'react-beautiful-dnd';
-
-//import { TableCell, TableFooter, TableRow } from "@material-ui/core";
-//import { Button } from "react-bootstrap";
-// import Checkbox from "@material-ui/core/Checkbox";
-// import FormControlLabel from "@material-ui/core/FormControlLabel";
-
 import { forwardRef } from "react";
-//import { Menu, MenuItem } from "@material-ui/core";
 
-//import * as XLSX from "xlsx/xlsx.mjs";
+// import Dialog from "@material-ui/core/Dialog";
+// import DialogActions from "@material-ui/core/DialogActions";
+// import DialogContent from "@material-ui/core/DialogContent";
+// import DialogTitle from "@material-ui/core/DialogTitle";
+
+// import { ConfirmProvider, useConfirm } from "material-ui-confirm";
+// import Button from "@material-ui/core/Button";
+
 import * as XLSX from "xlsx-js-style";
 
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-// import Save from "@material-ui/icons/Save";
-// import Comment from "@material-ui/icons/Comment";
-// import Share from "@material-ui/icons/Share";
-// import AddBox from "@material-ui/icons/AddBox";
-// import ArrowDownward from "@material-ui/icons/ArrowDownward";
-// import Check from "@material-ui/icons/Check";
-// import ChevronLeft from "@material-ui/icons/ChevronLeft";
-// import ChevronRight from "@material-ui/icons/ChevronRight";
-// import Clear from "@material-ui/icons/Clear";
-// import DeleteOutline from "@material-ui/icons/DeleteOutline";
-// import Edit from "@material-ui/icons/Edit";
-// import FilterList from "@material-ui/icons/FilterList";
-// import FirstPage from "@material-ui/icons/FirstPage";
-// import LastPage from "@material-ui/icons/LastPage";
-// import Remove from "@material-ui/icons/Remove";
-// import SaveAlt from "@material-ui/icons/SaveAlt";
-// import Search from "@material-ui/icons/Search";
-// import ViewColumn from "@material-ui/icons/ViewColumn";
-// import MoreVertIcon from "@material-ui/icons/MoreVert";
-// import Settings from "@material-ui/icons/Settings";
-// // import { Skeleton } from "@material-ui/lab";
-
-// const tableIcons = {
-//     Save: forwardRef((props, ref) => <Save {...props} ref={ref} />),
-//     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
-//     Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
-//     Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-//     Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
-//     DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-//     Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
-//     Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
-//     Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
-//     FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
-//     LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
-//     NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-//     PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
-//     ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-//     Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
-//     SortArrow: forwardRef((props, ref) => <ArrowDownward {...props} ref={ref} />),
-//     ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
-//     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
-//     Comment: forwardRef((props, ref) => <Comment {...props} ref={ref} />),
-//     Share: forwardRef((props, ref) => <Share {...props} ref={ref} />),
-//     MoreVertIcon: forwardRef((props, ref) => <MoreVertIcon {...props} ref={ref} />)
-// };
-
 function ReactMaterialGridComponent(props) {
     const tableRef = useRef();
+
     const tableTitle = props.tableTitle;
     const gridSource = props.gridSource;
     const [columnData, setColumnData] = useState(props.columnData);
     const [rows, setRows] = useState(props.rowData);
-    const [loadingOne, setLoadingOne] = useState(false);
+    const [tabActions, setTabActions] = useState([]);
     const actionProps = props.actionProps;
-    const topBarActions = [];
+    const [isLoading, setIsLoading] = useState(false);
+
+    // const [applyAll, setApplyAll] = useState([]);
+    // const [open, setOpen] = useState(false);
+    // const [oldUpdatedData, setOldUpdatedData] = useState();
+    // const [newUpdatedData, setNewUpdatedData] = useState();
+
+    // function handleClickOpen() {
+    //     setOpen(true);
+    // }
+
+    // function handleClose() {
+    //     setOpen(false);
+    // }
+
+    // function handleUpdate() {
+    //     setOpen(false);
+    //     debugger;
+    // }
 
     useEffect(() => {
-        // debugger;
+        //setIsLoading(true);
         setColumnData(props.columnData);
+        //setIsLoading(false);
     }, [props.columnData]);
 
     useEffect(() => {
-        setLoadingOne(!loadingOne);
-        setRows(props.rowData);
-        setLoadingOne(loadingOne);
+        // setLoading(true)
+        // setIsLoading(true);
+        if (props.rowData.length > 0) {
+            setRows(props.rowData);
+            // setLoading(false)
+            //setIsLoading(false);
+        } else {
+            setRows([]);
+        }
     }, [props.rowData]);
 
-    const csvData = [];
-    let deleteSet = [];
-    let groupedData;
+    const handleActions = (evt, data) => {
+        const tableRefArr = [];
+        const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.tableData.checked === true);
+
+        if (deleteSet.length > 0) {
+            deleteSet.map(tdata => {
+                if (tdata.tableData.checked === true) {
+                    tableRefArr.push(tdata.RuleAutoID);
+                }
+            });
+
+            if (props.Table_Ref.status === "available" && tableRefArr.length !== undefined) {
+                if (tableRefArr.length === 1) {
+                    props.Table_Ref.setValue(JSON.stringify(JSON.parse(tableRefArr)));
+                } else {
+                    props.Table_Ref.setValue(tableRefArr.join(","));
+                }
+            }
+        } else {
+            if (props.Table_Ref.status === "available" && data.length !== undefined) {
+                props.Table_Ref.setValue(data.map(obj => JSON.parse(obj.RuleAutoID)).join(","));
+            }
+
+            if (props.RowID.status === "available") {
+                props.RowID.setValue(data.ID);
+            }
+
+            if (tableRef.current.dataManager.grouped === true) {
+                let groupCount = 0;
+                const groupedItems = [];
+                for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {
+                    if (
+                        tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&
+                        tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1
+                    ) {
+                        groupCount++;
+                        groupedItems.push(tableRef.current.dataManager.columns[i].field);
+                    }
+                }
+                if (groupedItems.length === 1) {
+                    props.Groupby_Tag.setValue(groupedItems[0]);
+                } else {
+                    props.Groupby_Tag.setValue(groupedItems.join("|"));
+                }
+                props.TagLevel.setValue(JSON.stringify(groupCount));
+            } else {
+                props.Groupby_Tag.setValue("");
+                props.TagLevel.setValue("0");
+            }
+        }
+    };
+
+    const newTabActions = [];
+    props.actions.forEach((item, i) => {
+        newTabActions.push({
+            icon: () => (
+                <button key={i} className={item.className}>
+                    {item.actionName}
+                </button>
+            ),
+            position: item.position,
+            label: item.actionName,
+            baseClassName: item.actionName.replace(/ +/g, ""),
+            tooltip: item.tooltip,
+            hidden: !item.hidden.value,
+            // disabled: !item.hidden.value,
+            onClick: (evt, data) => {
+                if (evt.target.classList.contains("btnMinMax")) {
+                    const box = evt.target.closest(".mendix-react-material-table");
+                    const button = document.querySelector(".btnMinMax");
+                    // const buttonClass = document.querySelector(".maxIcon")
+
+                    if (button.classList.contains("minIcon")) {
+                        item.tooltip = "Minimize";
+                        //this.tooltip = "Maximize";
+                    } else {
+                        item.tooltip = "Maximize";
+                        //this.title = "Minimize";
+                    }
+
+                    // if (this.tooltip == "Maximize") {
+                    //     this.tooltip = "Minimize";
+                    // } else {
+                    //     this.tooltip = "Maximize";
+                    // }
+
+                    // button.addEventListener("click", () => {
+                    box.classList.toggle("toggle");
+                    button.classList.toggle("minIcon");
+                    // })
+                } else {
+                    handleActions(evt, data);
+
+                    if (item.onClickAction) {
+                        item.onClickAction.execute();
+                        // if (item.actionName === "Generate Obligations") {
+                        //     // setLoadingOne(!loadingOne);
+                        //     item.onClickAction.execute();
+                        // } else {
+                        //     item.onClickAction.execute();
+                        // }
+                    }
+                }
+            }
+        });
+    });
+
+    // useEffect(() => {
+    //     const newTabActions = [];
+    //     props.actions.forEach((item, i) => {
+    //         newTabActions.push({
+    //             icon: () => <button key={i} className={item.className} />,
+    //             position: item.position,
+    //             tooltip: item.tooltip,
+    //             hidden: !item.hidden.value,
+    //             onClick: (evt, data) => {
+    //                 if (evt.target.classList.contains("btnMinMax")) {
+    //                     const box = document.querySelector(".mendix-react-material-table");
+    //                     const button = document.querySelector(".btnMinMax");
+    //                     // const buttonClass = document.querySelector(".maxIcon")
+
+    //                     if (button.classList.contains("minIcon")) {
+    //                         item.tooltip = "Minimize";
+    //                     } else {
+    //                         item.tooltip = "Maximize";
+    //                     }
+
+    //                     // button.addEventListener("click", () => {
+    //                     box.classList.toggle("toggle");
+    //                     button.classList.toggle("minIcon");
+    //                     // })
+    //                 } else {
+    //                     handleActions(evt, data);
+
+    //                     if (item.onClickAction) {
+    //                         if (item.actionName === "GenerateObligation") {
+    //                             // setLoadingOne(!loadingOne);
+    //                             item.onClickAction.execute();
+    //                         } else {
+    //                             item.onClickAction.execute();
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     });
+    //     setTabActions(newTabActions);
+    // }, []);
+
+    // const csvData = [];
+    // const deleteSet = [];
+    // let groupedData;
 
     const exportCsv = (columns, data) => {
         debugger;
@@ -100,13 +227,13 @@ function ReactMaterialGridComponent(props) {
         tableTitleUpdated = tableTitleUpdated.slice(0, 29);
 
         if (tableRef.current.dataManager.grouped != true) {
-            // const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
             const columnNewData = columns.filter(column => column.hidden !== true);
             columnNewData.forEach(column => {
                 dataSet = data.filter(row => delete !row[column.field]);
             });
         } else {
             const groupedData = tableRef.current.dataManager.groupedData;
+            // eslint-disable-next-line no-inner-declarations
             function csvData(obj) {
                 debugger;
                 if (obj.data.length > 0) {
@@ -171,15 +298,10 @@ function ReactMaterialGridComponent(props) {
                 }
                 const str = ws[`${XLSX.utils.encode_col(C)}1`].v;
                 const substring = "Group-";
-                // console.log("substring", str.includes(substring));
 
                 if (str.includes(substring) && ws[ref].v !== "") {
-                    // console.log("how many times", str.includes(substring));
                     // wscols.push({width: 5});
                     // ws['!cols'] = wscols;
-
-                    // console.log('header cols', ws['!cols']);
-
                     ws[ref].s = {
                         font: {
                             size: "18",
@@ -199,19 +321,9 @@ function ReactMaterialGridComponent(props) {
                         }
                     };
 
-                    // console.log("ws[ref]----------------", ws[ref]);
-                    // console.log("ws[ref] val----------------", ws[ref].v);
-                    // console.log("All cols", C);
-                    // console.log("All rows", R);
-                    // console.log("All cols range start", range.s.c);
-                    // console.log("All cols range end", range.e.c);
-                    // console.log("All row range start", range.s.r);
-                    // console.log("All rows range end", range.e.r);
                     merge.push({ s: { r: R, c: C }, e: { r: R, c: range.e.c } });
-                    // console.log("merge", merge);
                     ws["!merges"] = merge;
                 }
-                // console.log("header key", ws[`${XLSX.utils.encode_col(C)}1`].v);
                 wscols.push({ width: range.e.c * 2 });
             }
         }
@@ -223,7 +335,6 @@ function ReactMaterialGridComponent(props) {
             if (str.includes(substring)) {
                 groupCols.push({ width: 2 });
                 const alphabet = [...Array(range.e.c + 1)].map((e, i) => (i + 10).toString(36).toUpperCase() + "1");
-                // console.log("alphabet for first two", alphabet[col]);
                 ws[alphabet[col]].s = {
                     font: {
                         color: { rgb: "FFFFFF" }
@@ -237,7 +348,6 @@ function ReactMaterialGridComponent(props) {
 
             if (!str.includes(substring)) {
                 const alphabet = [...Array(range.e.c + 1)].map((e, i) => (i + 10).toString(36).toUpperCase() + "1");
-                // console.log("alphabet", alphabet[col]);
                 ws[alphabet[col]].s = {
                     font: {
                         size: "18",
@@ -251,34 +361,34 @@ function ReactMaterialGridComponent(props) {
                 };
             }
         }
-        // console.log("ws[cols]", wscols);
         ws["!cols"] = [...groupCols, ...wscols];
 
         //XLSX.utils.book_append_sheet(workBook, workSheet, tableTitle.substring(0, 30));
         //XLSX.utils.book_append_sheet(workBook, ws, "xlxsdownload");
         //Buffer
-        XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
-        //Binary string
-        XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
-        //Download
-        XLSX.writeFile(workBook, tableTitle + ".xlsx");
-        //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
+        try {
+            XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
+            //Binary string
+            XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
+            //Download
+            XLSX.writeFile(workBook, tableTitle + ".xlsx");
+            //XLSX.writeFile(workBook, "xlxsdownload.xlsx");
+        } catch (err) {
+            if (err) {
+                console.log("error", err);
+                alert(
+                    "The character limit for the Rule Text has been exceeded. Please reach out to your system administrator for assistance."
+                );
+            }
+        }
     };
 
     const exportPdf = (columns, data) => {
         let dataSet = [];
         debugger;
-        // data.forEach(item => {
-        //     delete item.tableData;
-        // });
-        
-        const columnNewData = columns.filter(column => column.hidden !== true);
-        
-        // data.forEach(item => {
-        //     delete item.Actions && delete item.tableData;
-        // });
 
-        // const columnNewData = columns.filter(column => column.hidden !== true && column.title !== "Actions");
+        const columnNewData = columns.filter(column => column.hidden !== true);
+
         let rowNewData;
         columnNewData.forEach(column => {
             rowNewData = data.filter(row => delete !row[column.field]);
@@ -293,10 +403,11 @@ function ReactMaterialGridComponent(props) {
             dataSet = data.map(rowData => columns.map(columnDef => rowData[columnDef.field]));
         } else {
             const groupedData = tableRef.current.dataManager.groupedData;
+            // eslint-disable-next-line no-inner-declarations
             function csvData(obj) {
                 if (obj.data.length > 0) {
                     obj.data.forEach(item => {
-                        delete item.RuleAutoID
+                        delete item.RuleAutoID;
                         // delete item.Actions && delete item.RuleAutoID && delete item.tableData;
                     });
                     const groups = obj.path.map((e, idx) => ({ [`Group-${idx}`]: e }));
@@ -308,9 +419,7 @@ function ReactMaterialGridComponent(props) {
                 }
             }
             groupedData.forEach(csvData);
-            // console.log(dataSet);
         }
-        // rows = rows.map(rowData => rowData.includes('Rule') && typeof(rowData) ? rowData.props.children)
         const doc = new jsPDF("landscape");
 
         const header = function(data) {
@@ -358,153 +467,241 @@ function ReactMaterialGridComponent(props) {
         doc.save(tableTitle + ".pdf");
     };
 
-    const gridActionControls = props.actions.map(item => {
-        topBarActions.push({
-            icon: () => <button className={item.className} />,
-
-            // isFreeAction: item.isFreeAction,
-            position: item.position,
-            tooltip: item.actionName,
-            hidden: !item.hidden.value,
-            onClick: (evt, data) => {
-                // console.log("data-----", data);
-                // console.log("TableRef:", tableRef.current);
-                // debugger;
-                const tableRefArr = [];
-                deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.tableData.checked === true);
-
-                // if(data.length !== undefined){
-                //     data.forEach((obj, idx) => {
-                //         tableRefArr.push(obj.RuleAutoID);
-                //     });
-
-                //     if (props.Table_Ref.status === "available" && data.length !== undefined) {
-                //         if (tableRefArr.length === 1) {
-                //             props.Table_Ref.setValue(JSON.stringify(JSON.parse(tableRefArr)));
-                //         } else {
-                //             props.Table_Ref.setValue(tableRefArr.join(","));
-                //         }
-                //     }
-                // } else
-                if (deleteSet.length > 0) {
-                    // const deleteSet = tableRef.current.dataManager.data.filter(itemObj => itemObj.checked === true);
-                    // deleteSet &&
-                    deleteSet.map(tdata => {
-                        if (tdata.tableData.checked == true) {
-                            tableRefArr.push(tdata.RuleAutoID);
-                        }
-                    });
-
-                    if (props.Table_Ref.status === "available" && tableRefArr.length != undefined) {
-                        if (tableRefArr.length == 1) {
-                            props.Table_Ref.setValue(JSON.stringify(JSON.parse(tableRefArr)));
-                        } else {
-                            props.Table_Ref.setValue(tableRefArr.join(","));
-                        }
-                    }
-                } else {
-                    if (props.Table_Ref.status === "available" && data.length != undefined) {
-                        props.Table_Ref.setValue(data.map(obj => JSON.parse(obj.RuleAutoID)).join(","));
-                    }
-
-                    if (tableRef.current.dataManager.grouped == true) {
-                        let groupCount = 0;
-                        const groupedItems = [];
-                        for (let i = 0; i < tableRef.current.dataManager.columns.length; i++) {
-                            if (
-                                tableRef.current.dataManager.columns[i].tableData.groupOrder !== undefined &&
-                                tableRef.current.dataManager.columns[i].tableData.groupOrder !== -1
-                            ) {
-                                groupCount++;
-                                groupedItems.push(tableRef.current.dataManager.columns[i].field);
-                                // groupedItems.push(tableRef.dataManager.columns[i].title.replace(/ /g, ""));
-                            }
-                        }
-                        if (groupedItems.length == 1) {
-                            props.Groupby_Tag.setValue(groupedItems[0]);
-                        } else {
-                            props.Groupby_Tag.setValue(groupedItems.join("|"));
-                        }
-                        props.TagLevel.setValue(JSON.stringify(groupCount));
-                    } else {
-                        props.Groupby_Tag.setValue("");
-                        props.TagLevel.setValue("0");
-                    }
-                }
-
-                if (item.onClickAction) {
-                    if (item.actionName == "GenerateObligation") {
-                        // setLoadingOne(!loadingOne);
-                        item.onClickAction.execute();
-                    } else {
-                        item.onClickAction.execute();
-                    }
-                }
-            }
-        });
-    });
-
     return (
-        <div className="App">
-            <MaterialTable
-                tableRef={tableRef}
-                columns={props.columnData}
-                data={props.rowData}
-                isLoading={loadingOne ?? <CircularProgress />}
-                actions={topBarActions}
-                options={{
-                    rowStyle: x => ({
-                        color: Object.values(x)[Object.keys(x).length - 2] === true ? "#FF0000" : ""
-                    }),
-                         
-                    showEmptyDataSourceMessage: loadingOne ?? <CircularProgress />,
-                    // minBodyHeight: 560,
-                    maxBodyHeight: 1200,
-                    maxBodyWidth: 700,
-                    tableLayout: "auto",
-                    padding: "dense",
-                    draggable: props.canDraggable,
-                    sorting: props.canSortable,
-                    search: props.canSearch,
-                    filtering: props.canFilter,
-                    grouping: props.canGroupable,
-                    columnsButton: props.topbarColumnsButton,
-                    paging: props.isPaging,
-                    paginationPosition: props.paginationPosition,
-                    pageSizeOptions: [5, 10, 20, 25, 50, 100],
-                    pageSize: props.isPageSize,
-                    showSelectAllCheckbox: props.isSelectAllCheckbox.value,
-                    selection: props.isSelection.value,
-                    paginationType: "stepped",
-                    showFirstLastPageButtons: true,
-                    emptyRowsWhenPaging: false,
-                    doubleHorizontalScroll: true,
-                    exportAllData: true,
-                    exportFileName: tableTitle,
-                    exportMenu: [
-                        {
-                            label: "Export PDF",
-                            //// You can do whatever you wish in this function. We provide the
-                            //// raw table columns and table data for you to modify, if needed.
-                            // exportFunc: (cols, datas) => console.log({ cols, datas })
-                            exportFunc: (data, columns) => exportPdf(data, columns, tableTitle)
-                        },
-                        {
-                            label: "Export CSV",
-                            exportFunc: (data, columns) => exportCsv(data, columns, tableTitle)
+        <div className="App mendix-react-material-table">
+            {
+                <MaterialTable
+                    tableRef={tableRef}
+                    columns={columnData}
+                    data={rows}
+                    // isLoading={!rows.length}
+                    actions={newTabActions}
+                    // isLoading={isLoading ?? <CircularProgress />}
+                    localization={{
+                        toolbar: {
+                            exportTitle: "Download",
+                            exportAriaLabel: "Download"
                         }
-                    ],
+                    }}
+                    editable={{
+                        onRowUpdateCancelled: () => {
+                            // $('button[title="Save"]').show();
+                            $('button[title="Save"]').css('pointer-events', 'all').css('opacity', '1');
+                            $('button[title="Save RuleBook"]').css('pointer-events', 'all').css('opacity', '1');
+                        },
+                        onRowUpdate: props.editableTable.value
+                            ? (newData, oldData) =>
+                                  //   setIsLoading(true);
 
-                    searchFieldAlignment: "left",
-                    searchAutoFocus: true,
-                    // searchFieldVariant: "standard",
-                    searchFieldVariant: "outlined",
-                    addRowPosition: "first",
-                    actionsColumnIndex: -1,
-                    showTextRowsSelected: true
-                }}
-                title={props.rowData.length + gridSource}
-            />
+                                  new Promise((resolve, reject) => {
+                                      try {
+                                          //   setTimeout(() => {
+                                          newData["Apply To All"] = $(
+                                              'input[type="checkbox"][class="material-input-checkbox"]:checked'
+                                          )
+                                              .map(function() {
+                                                  return this.name;
+                                              })
+                                              .get()
+                                              .toString();
+                                          console.log(newData, oldData);
+
+                                          if (newData.hasOwnProperty("Exception")) {
+                                              // const valuesExists = [false, ""];
+                                              const exceptionData = props.columnData
+                                                  .filter(item => item.exceptionEnabled === true)
+                                                  .map(itz => newData[itz.title]);
+
+                                              // const exceptionCheck = exceptionData.some(r => valuesExists.includes(r));
+
+                                              if (
+                                                  // exceptionData.includes(false) ||
+                                                  exceptionData.includes("") ||
+                                                  exceptionData.includes("Unassigned")
+                                              ) {
+                                                  newData.Exception = "Exception";
+                                                  // } else if (exceptionData.includes(true) && !exceptionData.includes("")) {
+                                              } else if (!exceptionData.includes("")) {
+                                                  newData.Exception = "Edited";
+                                              } else {
+                                                  newData.Exception = "NotEdited";
+                                              }
+                                          }
+
+                                          var applyToAll = $(
+                                              'input[type="checkbox"][class="material-input-checkbox"]:checked'
+                                          )
+                                              .map(function() {
+                                                  return this.defaultValue;
+                                              })
+                                              .get()
+                                              .toString();
+                                          const dataUpdate = [...rows];
+                                          const index = oldData.tableData.id;
+                                          dataUpdate[index] = newData;
+
+                                          const newObj = Object.keys(newData).reduce(function(result, oldKey, i) {
+                                              var newKey = props.columnData[i].headerLabel;
+                                              return { ...result, [newKey]: newData[oldKey] };
+                                          }, {});
+
+                                          if (newData["Apply To All"] !== "") {
+                                              // selectedCols = newData["Apply To All"].split(",");
+                                              //updatedValues = selectedCols.map(item => [item, newObj[item]]).reduce((prev,curr)=>{prev[curr[0]]=curr[1];return prev;},{});
+
+                                              if (props.RowDataApplyToAll.status === "available") {
+                                                  props.RowDataApplyToAll.setValue(newData["Apply To All"]);
+                                              }
+
+                                              if (applyToAll.includes(",")) {
+                                                  applyToAll = applyToAll.split(",");
+                                                  dataUpdate.forEach(item =>
+                                                      Object.entries(item).map(([key, value]) => {
+                                                          if (applyToAll.some(v => v === key)) {
+                                                              return (item[key] = newData[key]);
+                                                          }
+                                                      })
+                                                  );
+                                              } else {
+                                                  dataUpdate.forEach(item =>
+                                                      Object.entries(item).map(([key, value]) => {
+                                                          if (applyToAll === key) {
+                                                              return (item[key] = newData[key]);
+                                                          }
+                                                      })
+                                                  );
+                                              }
+                                          } else {
+                                              if (props.RowDataApplyToAll.status === "available") {
+                                                  props.RowDataApplyToAll.setValue("");
+                                              }
+                                          }
+
+                                          if (props.RowID.status === "available") {
+                                              props.RowID.setValue(newObj.ID);
+                                          }
+
+                                          if (props.RowData.status === "available") {
+                                              props.RowData.setValue(JSON.stringify(newObj));
+                                          }
+
+                                          setRows([...dataUpdate]);
+
+                                          if (props.onRowUpdateAction.canExecute === true) {
+                                              props.onRowUpdateAction.execute();
+                                          }
+
+                                          //   $('.MuiToolbar-gutters button[title="Save"]').show();
+                                          resolve();
+                                          //   }, 1000);
+                                      } catch (err) {
+                                          reject(err);
+                                      }
+                                      //   setIsLoading(false);
+                                  })
+                            : null
+                        // onRowDelete: oldData =>
+                        //     new Promise((resolve, reject) => {
+                        //         setTimeout(() => {
+                        //             const dataDelete = [...rows];
+                        //             const index = oldData.tableData.id;
+                        //             dataDelete.splice(index, 1);
+                        //             setRows([...dataDelete]);
+                        //             props.Table_Ref.setValue(JSON.stringify(JSON.parse(oldData.RuleAutoID)));
+                        //             if (props.onRowDeleteAction.canExecute === true) {
+                        //                 props.onRowDeleteAction.execute();
+                        //             }
+                        //             resolve();
+                        //         }, 1000);
+                        //     })
+                    }}
+                    options={{
+                        rowStyle: rowData => {
+                            if (rowData.Exception !== "") {
+                                return {
+                                    color:
+                                        rowData.Exception === "Exception"
+                                            ? "red"
+                                            : rowData.Exception === "Edited"
+                                            ? "green"
+                                            : "black"
+                                };
+                            }
+                        },
+
+                        actionsColumnIndex: props.actionColumnIndex,
+                        showEmptyDataSourceMessage: true,
+                        // showEmptyDataSourceMessage: isLoading ?? <CircularProgress />,
+                        minBodyHeight: 500,
+                        maxBodyHeight: "70vh",
+                        maxBodyWidth: 700,
+                        tableLayout: "auto",
+                        padding: "dense",
+                        draggable: props.canDraggable,
+                        sorting: props.canSortable,
+                        search: props.canSearch,
+                        filtering: props.canFilter,
+                        grouping: props.canGroupable,
+                        paging: props.isPaging,
+                        paginationPosition: props.paginationPosition,
+                        pageSizeOptions: [5, 10, 20, 25, 50, 100],
+                        pageSize: props.isPageSize,
+                        showSelectAllCheckbox: props.isSelectAllCheckbox.value,
+                        selection: props.isSelection.value,
+                        paginationType: "stepped",
+                        showFirstLastPageButtons: true,
+                        emptyRowsWhenPaging: false,
+                        doubleHorizontalScroll: true,
+
+                        exportAllData: true,
+                        exportFileName: tableTitle,
+                        exportMenu: [
+                            {
+                                label: "PDF",
+                                exportFunc: (data, columns) => exportPdf(data, columns, tableTitle)
+                            },
+                            {
+                                label: "Excel",
+                                exportFunc: (data, columns) => exportCsv(data, columns, tableTitle)
+                            }
+                        ],
+                        // exportMenu: props.rowData.length
+                        //     ? [
+                        //           {
+                        //               label: "PDF",
+                        //               exportFunc: (data, columns) => exportPdf(data, columns, tableTitle)
+                        //           },
+                        //           {
+                        //               label: "Excel",
+                        //               exportFunc: (data, columns) => exportCsv(data, columns, tableTitle)
+                        //           }
+                        //       ]
+                        //     : false,
+                        columnsButton: props.topbarColumnsButton,
+                        searchFieldAlignment: "left",
+                        searchAutoFocus: true,
+                        searchFieldVariant: "outlined",
+                        addRowPosition: "first",
+                        showTextRowsSelected: true
+                    }}
+                    title={props.rowData.length + gridSource}
+                />
+            }
+            {/* <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">Update Regulation</DialogTitle>
+                <DialogContent>
+                    <div>Do you want to update regulation data changes ?</div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleUpdate} color="primary">
+                        Update
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            ; */}
         </div>
     );
 }
