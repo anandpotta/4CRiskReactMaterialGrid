@@ -26,6 +26,11 @@
                <caption>Grid Soruce</caption>
                <description>String attribute where the Grid Source to be added for the count.</description>
             </property>
+            <!-- <property key="detailPanelContent" type="widgets" dataSource="datasource" required="false">
+               <caption>Detail Panel content</caption>
+               <description/>
+            </property> -->
+
          </propertyGroup>
 
          <propertyGroup caption="Data">
@@ -44,8 +49,16 @@
                            <description/>
                            <enumerationValues>
                               <enumerationValue key="attribute">Attribute</enumerationValue>
+                              <enumerationValue key="largeData">LargeData</enumerationValue>
                               <!-- <enumerationValue key="dynamicText">Dynamic text</enumerationValue> -->
-                              <enumerationValue key="customContent">Custom content</enumerationValue>
+                              <enumerationValue key="customContent">Custom</enumerationValue>
+                              <enumerationValue key="dropDownContent">Dropdown</enumerationValue>
+                              <enumerationValue key="multiSelectContent">Multiselect</enumerationValue>
+                              <enumerationValue key="applyAllRows">ApplyAllRows</enumerationValue>
+                              <enumerationValue key="exception">Exception</enumerationValue>
+                              
+                              <!-- <enumerationValue key="popOver">PopOver</enumerationValue> -->
+                              <enumerationValue key="boolean">Boolean</enumerationValue>
                            </enumerationValues>
                         </property>
                         <property key="attribute" type="attribute" dataSource="../datasource" required="false">
@@ -70,6 +83,34 @@
                            <caption>Caption</caption>
                            <description/>
                         </property>
+                        <!-- <property key="defaultValue" type="datasource" isList="true" required="false">
+                           <caption>Data source</caption>
+                           <description>Please use a microflow to retrieve. Get the default value that has to be set. Currently it is only possible to return lists in this datasource property, therefore make sure to return a list only containing the object you want to have as the default value. For options the same object type must be selected.</description>
+                        </property>
+                        <property key="objIdDefaultValue" type="attribute" required="false" dataSource="defaultValue">
+                           <caption>Object id default value</caption>
+                           <description>Id attribute of the object.</description>
+                           <attributeTypes>
+                                 <attributeType name="String"/>
+                           </attributeTypes>
+                        </property> -->
+                        <property key="selectableObjects" type="datasource" isList="true" required="false">
+                           <caption>Selectable Objects</caption>
+                           <description>The objects that will be selectable in the dropdown</description>
+                        </property>
+                        <property key="displayAttribute" type="attribute" required="false" dataSource="selectableObjects">
+                           <caption>Attribute to Display</caption>
+                           <description>The attribute that will be displayed in the dropdown</description>
+                           <attributeTypes>
+                              <attributeType name="String" />
+                              <attributeType name="Enum" />
+                           </attributeTypes>
+                        </property>
+                        
+                        <property key="exceptionEnabled" type="boolean" required="true" defaultValue="false">
+                           <caption>Row color based on Exception value</caption>
+                           <description />
+                        </property>
                         <property key="draggable" type="expression" defaultValue="true" required="false">
                            <caption>Column Drag and Drop</caption>
                            <description />
@@ -83,6 +124,17 @@
                         <property key="groupOrder" type="integer" defaultValue="-1">
                            <caption>Set Default Group Order</caption>
                            <description />
+                        </property>
+                        <property key="isEditable" type="enumeration" defaultValue="always">
+                           <caption>Editable</caption>
+                           <description/>
+                           <enumerationValues>
+                              <enumerationValue key="always">Always</enumerationValue>
+                              <!-- <enumerationValue key="dynamicText">Dynamic text</enumerationValue> -->
+                              <enumerationValue key="never">Never</enumerationValue>
+                              <enumerationValue key="onUpdate">onUpdate</enumerationValue>
+                              <enumerationValue key="onAdd">onAdd</enumerationValue>
+                           </enumerationValues>
                         </property>
                         <property key="canHide" type="expression" defaultValue="false" required="false">
                            <caption>Hidden Column</caption>
@@ -107,8 +159,11 @@
                            <caption>Column Max Width</caption>
                            <description />
                         </property>
+
                      </propertyGroup>
-                  </propertyGroup>
+                  </propertyGroup> 
+
+
                </properties>
             </property>
              <!-- <property key="pageSize" type="integer" defaultValue="20">
@@ -128,9 +183,28 @@
                                     <returnType type="Object" isList="true" entityProperty="dataAssociation"/>
                         </property> -->
          </propertyGroup>
+
+      <!-- <propertyGroup caption="Detail Panel Container">
+         <property key="detailPanel" type="object"  isList="true" required="false">
+            <caption>Detail Panel Content</caption>
+            <description>Detail Panel Widgets need to add here...</description>
          
+         <properties>
+            <propertyGroup caption="Detail Panel Details">
+               <property key="detailPanelContent" type="widgets" dataSource="../datasource" required="false">
+                  <caption>Detail Panel content</caption>
+                  <description/>
+               </property>
+            </propertyGroup>
+         </properties>
+
+
+         </property>
+      </propertyGroup> -->
+      
+
          <propertyGroup caption="Action Buttons">
-            <property key="actions" type="object" isList="true" required="false">
+            <property key="actions" type="object" isList="true" required="false" >
                <caption>Action List</caption>
                <description>Actions want to add.</description>
                <properties>
@@ -144,6 +218,37 @@
                            <caption>ClassName</caption>
                            <description>Class Name</description>
                         </property>
+
+                        <property key="dynamicClasses" type="expression" defaultValue="" required="false">
+                           <caption>Dynamic classes</caption>
+                           <description></description>
+                           <returnType type="String" />
+                        </property>
+
+                        <!-- <property key="myBlockTitle" type="textTemplate">
+                           <caption>Input title</caption>
+                           <description>Title for the color input</description>
+                           <translations>
+                              <translation lang="en_US">Color</translation>
+                              <translation lang="nl_NL">Kleur</translation>
+                              <translation lang="uk_UA">Колір</translation>
+                           </translations>
+                        </property> -->
+
+                        <!-- <property key="ref" type="association" selectableObjects="objectsDatasource" required="false">
+                           <caption>Reference</caption>
+                           <description>Reference</description>
+                           <associationTypes>
+                              <associationType name="Reference"/>
+                              <associationType name="ReferenceSet"/>
+                           </associationTypes>
+                        </property>
+
+                        <property key="objectsDatasource" type="datasource" isList="false" required="false">
+                           <caption>Selectable objects</caption>
+                           <description/>
+                        </property> -->
+
                         <property key="tooltip" type="string">
                            <caption>Tooltip</caption>
                            <description>Tooltip Text</description>
@@ -205,10 +310,6 @@
                <caption>Add Column Filter</caption>
                <description />
             </property>
-            <property key="isRowEditable" type="boolean" required="true" defaultValue="false">
-               <caption>Is Row Editable</caption>
-               <description />
-            </property>
             <property key="canSearch" type="boolean" required="true" defaultValue="true">
                <caption>Add Grid Search</caption>
                <description />
@@ -237,6 +338,10 @@
                <caption>TobBar Obligation Action Visibility</caption>
                <description />
             </property>
+            <property key="actionColumnIndex" type="integer" defaultValue="-1">
+               <caption>Set Action Column Order</caption>
+               <description />
+            </property>
             <property key="isPaging" type="boolean" required="true" defaultValue="true">
                <caption>Add Pagination</caption>
                <description />
@@ -263,6 +368,11 @@
                <description />
                <returnType type="Boolean"/>
             </property>
+            <property key="editableTable" type="expression" required="true" defaultValue="false">
+               <caption>Editable Table</caption>
+               <description/>
+               <returnType type="Boolean"/>
+            </property>
          </propertyGroup>
       </propertyGroup>
       <propertyGroup caption="Action">
@@ -270,7 +380,7 @@
             <caption>On row click</caption>
             <description>Action to be performed when row is clicked</description>
          </property>
-         <property key="onRowUpdateAction" type="action" dataSource="datasource">
+         <property key="onRowUpdateAction" type="action" required="false">
             <caption>On row update</caption>
             <description>Action to be performed when row update</description>
          </property>
@@ -326,6 +436,20 @@
          <property key="RowID" type="attribute" required="false">
             <caption>RowID</caption>
             <description>Store the props from onclick events</description>
+            <attributeTypes>
+               <attributeType name="String"/>
+            </attributeTypes>
+         </property>
+         <property key="RowData" type="attribute" required="false">
+            <caption>RowData</caption>
+            <description>Updated Row Data</description>
+            <attributeTypes>
+               <attributeType name="String"/>
+            </attributeTypes>
+         </property>
+         <property key="RowDataApplyToAll" type="attribute" required="false">
+            <caption>RowData apply to all rows</caption>
+            <description>Selected Row infomation apply to all the rows</description>
             <attributeTypes>
                <attributeType name="String"/>
             </attributeTypes>
